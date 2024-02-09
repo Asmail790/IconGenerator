@@ -1,0 +1,7 @@
+läs om parameter ts config parametrar
+https://www.typescriptlang.org/tsconfig#noUncheckedIndexedAccess
+https://www.typescriptlang.org/docs/handbook/modules/guides/choosing-compiler-options.html
+
+path alias
+https://webreaper.dev/posts/tsconfig-paths-setup/
+https://www.typescriptlang.org/docs/handbook/modules/theory.html

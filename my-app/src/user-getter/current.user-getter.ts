@@ -1,0 +1,1 @@
+export {default as getUser} from './identity.get-user-by-id';

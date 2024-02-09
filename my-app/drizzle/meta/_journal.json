@@ -1,0 +1,48 @@
+{
+  "version": "5",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1706063527816,
+      "tag": "0000_windy_morbius",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1706673383353,
+      "tag": "0001_quiet_captain_stacy",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1706708439288,
+      "tag": "0002_normal_scourge",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1706708473074,
+      "tag": "0003_familiar_norman_osborn",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1706708930730,
+      "tag": "0004_flawless_toro",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1706709202018,
+      "tag": "0005_reflective_alex_wilder",
+      "breakpoints": true
+    }
+  ]
+}

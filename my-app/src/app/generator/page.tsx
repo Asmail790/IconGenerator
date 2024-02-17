@@ -1,6 +1,6 @@
 import ImageGeneratorForm from "./_components/image-generator-form";
-import { generateImages } from "./actions/generate-images";
-import { saveImage } from "./actions/save-image";
+import { generateImages } from "./_actions/generate-images";
+import { saveImage } from "./_actions/save-image";
 import { defaultImageTokenGetter as getImageToken } from "./_logic/get-number-of-tokens";
 import { defaultGetUserId as getUserId } from "../api/auth/_logic/get-user-id";
 import { getUserEmail, isLoggedIn } from "../api/auth/[...nextauth]/config";

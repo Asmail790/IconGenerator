@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useFormState } from "react-dom";
-import { TGenerateImages } from "../actions/generate-images";
-import { TSaveImage } from "../actions/save-image";
+import { TGenerateImages } from "../_actions/generate-images";
+import { TSaveImage } from "../_actions/save-image";
 
 import ColorSelector from "./color-selector";
 import StyleSelector from "./style-selector";

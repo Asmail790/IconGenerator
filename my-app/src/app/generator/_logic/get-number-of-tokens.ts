@@ -1,12 +1,13 @@
-import IDB from "@/db/interface.db";
+import { DBInterface } from "@/db/removeImage";
 import { db } from "@/global.config/db";
 
-async function getNumberOfTokens(args:{db:IDB,userId:string}){
+type DBUtils = Pick<DBInterface,"getNumberOfTokens" >
+async function getNumberOfTokens(args:{db:DBUtils,userId:string}){
     return args.db.getNumberOfTokens(args.userId)
 }
 
 
-export function createImageTokenGetter(db:IDB){
+export function createImageTokenGetter(db:DBUtils){
     return (userId:string) =>  getNumberOfTokens({db,userId})
     
 }

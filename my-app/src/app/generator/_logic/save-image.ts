@@ -1,4 +1,4 @@
-import IDB from "@/db/interface.db";
+import { DBInterface } from "@/db/removeImage";
 import { db } from "@/global.config/db";
 type TSuccessfulImageDownload = {
   successful: true;
@@ -26,12 +26,13 @@ type SaveImageUnsuccessful = {
 export type SaveImageStatus = SaveImageSuccessful | SaveImageUnsuccessful;
 export type TImageFetcher = (url: string) => Promise<ImageDownloadStatus>;
 
+type DBUtils = Pick<DBInterface, "getImageData"|"saveImage"> 
 async function saveImage(args: {
   userId: string;
   description: string;
   color: string;
   style: string;
-  db: IDB;
+  db: DBUtils;
   url: string;
   getImageData: TImageFetcher;
 }): Promise<SaveImageStatus> {
@@ -72,7 +73,7 @@ const imageFetcher: TImageFetcher = async (url) => {
 };
 
 export function createImageSaver(config: {
-  db: IDB;
+  db: DBUtils;
   getImageData: TImageFetcher;
 }) {
   return (args: {

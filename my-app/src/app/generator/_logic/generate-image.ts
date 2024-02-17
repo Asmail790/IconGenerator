@@ -2,17 +2,12 @@ import {
   ImageCostCalculator,
   ImageGenerator,
 } from "@/image-generator/generator.interface";
-import IDB from "@/db/interface.db";
 import { db } from "@/global.config/db";
 import { calculateCost, generate } from "@/global.config/generator";
 import { totalCostLimit } from "@/global.config/totalCostLimit";
+import { DBInterface } from "@/db/removeImage";
 
 
-type TGenerateOptions = {
-  description: string;
-  color: string;
-  style: string;
-};
 
 type TGenerateSuccessful = {
   isSuccess: true;
@@ -27,13 +22,14 @@ type TGenerateUnsuccessful = {
 
 export type TGenerateState = (TGenerateSuccessful | TGenerateUnsuccessful) 
 
+type DBUtils = Pick<DBInterface,"decreaseToken"|"getNumberOfTokens">
 async function generateImage(args: {
   style: string;
   color: string;
   description: string;
   numberOfImages: number;
   userId: string;
-  db: IDB;
+  db:DBUtils
   generator: ImageGenerator;
   costCalculator: ImageCostCalculator;
   totalCostLimit: number;
@@ -53,7 +49,7 @@ async function generateImage(args: {
 }
 
 export function createImageGenerator(config: {
-  db: IDB;
+  db: DBUtils
   generator: ImageGenerator;
   costCalculator: ImageCostCalculator;
   totalCostLimit: number;

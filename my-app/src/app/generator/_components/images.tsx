@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
-import { TState } from "../actions/generate-images";
-import { TSaveImage } from "../actions/save-image";
+import { TState } from "../_actions/generate-images";
+import { TSaveImage } from "../_actions/save-image";
 import Image from "next/image";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";

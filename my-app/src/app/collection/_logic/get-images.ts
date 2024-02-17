@@ -1,7 +1,7 @@
 import "server-only"
-import IDB from "@/db/interface.db";
 import { db } from "@/global.config/db";
 import { imageIdToURL } from "@/app/api/image/[imageID]/_logic/url-converter";
+import { DBInterface } from "@/db/db-interface";
 
 type ImgData = {
     description: string;
@@ -15,8 +15,8 @@ type ImgData = {
     lastPage:number
   }
   
-  
-  async function getImages(args:{db:IDB,style?:string,description?:string,pageIndex:number,pageSize:number,userId:string,mapUrl:(id:string) => string}):Promise<Result>{
+  type DBUtils = Pick<DBInterface,"getImageProperties"|"totalNumberOfImages"|"getImageIds">
+  async function getImages(args:{db:DBUtils,style?:string,description?:string,pageIndex:number,pageSize:number,userId:string,mapUrl:(id:string) => string}):Promise<Result>{
     const {style,description,pageIndex,pageSize,userId,mapUrl,db} =args 
     const limit = pageSize
     const offset = pageSize*pageIndex
@@ -38,7 +38,7 @@ type ImgData = {
   }
   
   
-function createGetImages(config:{db:IDB,mapUrl:(id:string) => string }){
+function createGetImages(config:{db:DBUtils,mapUrl:(id:string) => string }){
     return (args:{style?:string,description?:string,pageIndex:number,pageSize:number,userId:string}) => getImages({...args,...config})
   }
 

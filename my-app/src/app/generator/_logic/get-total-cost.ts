@@ -1,13 +1,15 @@
-import IDB from "@/db/interface.db";
+import { DBInterface } from "@/db/removeImage";
 import { db } from "@/global.config/db";
 
-async function getTotalCost(args:{db:IDB}){
-    return args.db.getTotalCost()
+
+type DBUtils = Pick<DBInterface,"getTotalCost">
+async function getTotalCost(db:DBUtils){
+    return db.getTotalCost()
 }
 
 
-export function createTotalCostGetter(db:IDB){
-    return () =>  getTotalCost({db})
+export function createTotalCostGetter(db:DBUtils){
+    return () =>  getTotalCost(db)
     
 }
 

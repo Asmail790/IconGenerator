@@ -1,4 +1,4 @@
-import IDB from "@/db/interface.db";
+import { DBInterface } from "@/db/removeImage";
 import { db } from "@/global.config/db";
 
 
@@ -8,8 +8,8 @@ import { db } from "@/global.config/db";
 
 
 
-
-async function getImage(args:{db:IDB,userId:string,imageId:string}){
+type DBUtils = Pick<DBInterface,"getImageData">
+async function getImage(args:{db:DBUtils,userId:string,imageId:string}){
     const {db,userId,imageId} = args
        
     const image =  db.getImageData({userId,imageId})
@@ -17,7 +17,7 @@ async function getImage(args:{db:IDB,userId:string,imageId:string}){
 
 }
 
-export function createImageGetter(db:IDB){
+export function createImageGetter(db:DBUtils){
     return async (args:{userId:string,imageId:string}) => getImage({...args,db})
 }
 

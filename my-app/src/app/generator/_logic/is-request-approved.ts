@@ -1,5 +1,3 @@
-import IDB from "@/db/interface.db";
-import { db } from "@/global.config/db";
 import { totalCostLimit } from "@/global.config/totalCostLimit";
 type TApproved = {
   isApproved: true;

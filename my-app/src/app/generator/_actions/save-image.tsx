@@ -2,9 +2,8 @@
 import { z } from "zod";
 import { SaveImageStatus, defaultImageSaver as _saveImage } from "../_logic/save-image";
 import { defaultGetUserId as getUserId } from "../../api/auth/_logic/get-user-id";
-import { getUserEmail, isLoggedIn } from "../../api/auth/[...nextauth]/config";
+import { getUserEmail } from "../../api/auth/[...nextauth]/config";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { checkPath } from "@/app/path-register";
 
 const schema = z.object({

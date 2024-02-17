@@ -1,8 +1,32 @@
-import GeneratorForm from "./_components/form";
-import { generateImages, saveImage } from "./actions";
+import ImageGeneratorForm from "./_components/image-generator-form";
+import { generateImages } from "./actions/generate-images";
+import { saveImage } from "./actions/save-image";
+import { defaultImageTokenGetter as getImageToken } from "./_logic/get-number-of-tokens";
+import { defaultGetUserId as getUserId } from "../api/auth/_logic/get-user-id";
+import { getUserEmail, isLoggedIn } from "../api/auth/[...nextauth]/config";
+import { notFound, redirect } from "next/navigation";
+import { SignInRequest } from "../_components/sign-message";
+import { userTokensGranted } from "@/global.config/userTokensGranted";
 
-export default function Generator() {
+
+
+ async function getTokens(){
+  const email = await getUserEmail()
+  const userId = await getUserId(email)
+  const tokens =  await getImageToken(userId)
+  return tokens
+}
+
+export default async function Generator() {
+
+  // if (!await isLoggedIn()){
+  //  return <SignInRequest message="To generate icons you need to sign in."/>
+  // }
+
+  const tokens = await isLoggedIn()? await getTokens():userTokensGranted
+  
+
   return (
-      <GeneratorForm imageGenerator={generateImages} imageSaver={saveImage} />
+      <ImageGeneratorForm imageGenerator={generateImages} numberOfImageTokens={tokens} imageSaver={saveImage} />
   );
 }

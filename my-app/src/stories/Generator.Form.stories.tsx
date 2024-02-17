@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import GeneratorForm from "@/app/generator/_components/form";
+import ImageGeneratorForm from "@/app/generator/_components/image-generator-form";
 import { generator } from "@/image-generator/fake.generator";
 import { z } from "zod";
 
@@ -7,12 +7,12 @@ import "../app/globals.css"
 
 const meta = {
     title:"image generate form",
-    component:GeneratorForm
+    component:ImageGeneratorForm
 
-} satisfies Meta<typeof GeneratorForm>
+} satisfies Meta<typeof ImageGeneratorForm>
 
 export default meta
-type Story = StoryObj<typeof GeneratorForm>;
+type Story = StoryObj<typeof ImageGeneratorForm>;
 
 
 const formDataSchema = z.object({
@@ -41,10 +41,9 @@ export const story:Story ={
         },
         async imageGenerator(_, invalidatedFormData) {
             const {color,description,numberOfImages,style} =schema.parse(invalidatedFormData)
-            console.log(color,description,numberOfImages,style)
             
             const urls = await generator({prompt:"",numberOfImages})
-            return {isSuccess:true,imageProperties:{color,style,description},imageUrls:urls}
+            return {ImageTokensLeft:5,isSuccess:true,imageProperties:{color,style,description},imageUrls:urls}
             
         },
         

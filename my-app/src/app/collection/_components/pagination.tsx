@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { StyledPagination } from "./styled-only-pagination";
+import {type queryEntry } from "../_shared/schema"
 
 type UrlProps = { url: string; page: number }[];
 
@@ -15,26 +16,31 @@ function createPageUrls(args: {
 }): UrlProps {
   const { path, fixedQuery,  currentPage, lastPage } = args;
 
-  const queryCommon = new URLSearchParams();
 
+
+  
+  const queryCommon = new URLSearchParams();
+  
   for (const [key,value] of Object.entries(fixedQuery)) {
     if (value !== undefined){
       queryCommon.append(key,value);
     }
   }
+  
+  const pageUrlProps = [-3,-2,-1, 0, 1,2,3]
+  .map((delta) => {
+    const query = new URLSearchParams(queryCommon);
+    const page =  currentPage + delta
+    const queryEntry = ["page",String(page)] satisfies queryEntry
 
-  const pageUrlProps = [-1, 0, 1]
-    .map((delta) => {
-      const query = new URLSearchParams(queryCommon);
-      const page =  currentPage + delta
-      query.append("page", String(page));
-      const url = `${path}?${query.toString()}`
-       
 
-      return { page, url };
-    })
-    .filter((urlsProps) => 0 <= urlsProps.page && urlsProps.page <= lastPage);
-
+    query.append(...queryEntry);
+    const url = `${path}?${query.toString()}`
+    
+    
+    return { page, url };
+  })
+  .filter((urlsProps) => 0 <= urlsProps.page && urlsProps.page <= lastPage);
   return pageUrlProps;
 }
 
@@ -52,7 +58,6 @@ export function Pagination(props: {args:{
 
   const urlProps = createPageUrls({path,fixedQuery:{style,description},currentPage,lastPage})
   const activeIndex = urlProps.map(urlProp => urlProp.page ).indexOf(currentPage)
-  console.log(urlProps)
 
   if (activeIndex ===-1){
     throw Error("activeIndex undefined")

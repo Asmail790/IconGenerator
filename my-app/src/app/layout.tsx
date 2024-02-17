@@ -2,7 +2,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Header } from "./_components/header";
-import Providers from "./_app";
+import Providers from "./_session-provider";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -15,11 +15,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html className="dark w-full h-100">
+    <html className="dark w-full h-full">
       <body>
         <Providers>
           <Header />
-          <div className="xl:container flex flex-row justify-center">
+          <div className="xl:container flex flex-row justify-center p-4">
             <div>
               {children}
             </div>

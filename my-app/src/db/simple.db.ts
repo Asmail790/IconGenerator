@@ -50,6 +50,10 @@ export default class SimpleDB implements IDB {
       users: new Map<string, UserProperty>(),
     };
   }
+  removeImage(imageId: string,userId:string): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+ 
   async totalNumberOfImages(args: {
     userId: string;
     description?: string | undefined;
@@ -157,9 +161,15 @@ export default class SimpleDB implements IDB {
       imageId,
     });
   }
-  async decreaseTokenByOne(userId: string): Promise<void> {
-    this.getUser(userId).tokens -= 1;
+  async decreaseToken(args:{userId: string,tokensSpend:number}): Promise<void> {
+
+    this.getUser(args.userId).tokens -= args.tokensSpend;
   }
+
+  async createTokens(userId: string, numberOfTokens: number): Promise<void> {
+    this.getUser(userId).tokens = numberOfTokens
+  }
+
   async addToTotalCost(cost: number): Promise<void> {
     this.storage.totalCost += cost;
   }

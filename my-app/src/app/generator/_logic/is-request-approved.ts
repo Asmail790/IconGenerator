@@ -12,15 +12,15 @@ type TNotApproved = {
 
 type TApprovedStatus = TApproved | TNotApproved;
 
-async function isRequestApproved(args: {
-  userId: string;
+ function isRequestApproved(args: {
   numberOfImages: number;
-  db: IDB;
   totalCostLimit: number;
-}): Promise<TApprovedStatus> {
-  const { userId, numberOfImages, db, totalCostLimit } = args;
-  const currentCost = await db.getTotalCost();
-  const condition1 = currentCost < totalCostLimit;
+  currentTotalCost:number,
+  currentUserTokens:number,
+
+}): TApprovedStatus {
+  const { currentTotalCost, numberOfImages, currentUserTokens, totalCostLimit } = args;
+  const condition1 = currentTotalCost < totalCostLimit;
   let friendlyMessage: string;
 
   if (!condition1) {
@@ -31,19 +31,18 @@ async function isRequestApproved(args: {
     };
   }
 
-  const userTokens = await db.getNumberOfTokens(userId);
 
-  const condition2 = 0 < (await db.getNumberOfTokens(userId));
+  const condition2 = 0 < currentUserTokens;
   if (condition2) {
     return { isApproved: true };
   }
 
-  const missingTokens = numberOfImages - userTokens;
+  const missingTokens = numberOfImages - currentUserTokens;
 
-  if (userTokens === 0) {
+  if (currentUserTokens === 0) {
     friendlyMessage = "you have zero tokens left.";
   } else {
-    friendlyMessage = `To generate ${numberOfImages} images requires at least ${missingTokens} tokens but you have ${userTokens} left.`;
+    friendlyMessage = `To generate ${numberOfImages} images requires at least ${missingTokens} tokens but you have ${currentUserTokens} left.`;
   }
 
   return {
@@ -53,14 +52,12 @@ async function isRequestApproved(args: {
 }
 
 export function createRequestApprover(config: {
-  db: IDB;
   totalCostLimit: number;
 }) {
-  return (requestArgs: { userId: string; numberOfImages: number }) =>
+  return (requestArgs: { currentUserTokens:number,currentTotalCost:number, numberOfImages: number }) =>
     isRequestApproved({ ...requestArgs, ...config });
 }
 
 export const defaultRequestApprover = createRequestApprover({
-  db,
   totalCostLimit,
 });

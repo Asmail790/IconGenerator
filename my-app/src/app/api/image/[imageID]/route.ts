@@ -1,28 +1,23 @@
-import { eq } from "drizzle-orm"
-import { icons, users } from "../../../../../schema"
-import { db } from "@/global.config/db"
-import { auth } from "../../auth/[...nextauth]/route"
-export async function GET(request: Request,
-  { params }: { params: { imageID: string }}) {
-  
+import { eq } from "drizzle-orm";
+import { icons, users } from "../../../../../schema";
+import { db } from "@/global.config/db";
+import { defaultImageGetter as getImage } from "./_logic/get-image";
+import { auth, getUserEmail } from "../../auth/[...nextauth]/config";
+import { defaultGetUserId as getUserId } from "../../auth/_logic/get-user-id";
 
-    
-    const session = await auth()
-    if (session === null){
-      return Response.json({ imageUrls:[]})
-    }
-    
-    const email = session.user?.email
-    if (email===undefined || email === null){
-      throw Error("email is undefined")
-    }
-    
-    const userId = await db.getUserId(email)
-    
-    const image =  await db.getImageData({userId,imageId:params.imageID})
+type TSearchParams = { imageID: string };
+export async function GET(
+  request: Request,
+  { params }: { params: TSearchParams }
+) {
+  const imageId = params.imageID;
+  const email = await getUserEmail();
+  const userId = await getUserId(email);
 
-    
-    return new Response(image,{headers:new Headers({ "Content-Type": "image/png"})})
+  const image = await getImage({ userId, imageId });
+  return new Response(image, {
+    headers: new Headers({ "Content-Type": "image/png" }),
+  });
 }
 
-export const mapUrl = (id:string) => `/api/image/${id}`
+

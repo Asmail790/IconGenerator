@@ -52,7 +52,11 @@ export default interface IDB {
         style:string
     }):Promise<void>
 
-    decreaseTokenByOne(userId:string):Promise<void>
+
+    removeImage(imageId:string,userId:string):Promise<void>
+    
+    createTokens(userId:string,numberOfTokens:number):Promise<void>
+    decreaseToken(args:{userId: string,tokensSpend:number}):Promise<void>
 
     addToTotalCost(cost:number):Promise<void>
 }

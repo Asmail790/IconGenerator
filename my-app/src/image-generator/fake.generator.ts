@@ -11,7 +11,7 @@ export function createFakeGenerator(urls: string[], cost: number) {
         .fill(null)
         .map(() => Math.floor(Math.random() * urls.length))
         .map((i) => {
-            const url = urls[i]
+          const url = urls[i]
             if (url === undefined) {
             throw Error("IndexError")
         }
@@ -27,7 +27,11 @@ export function createFakeGenerator(urls: string[], cost: number) {
   return {costCalculator,generator}
 }
 
-const urls = [fire_thumbnail.src,ok_thumbnail.src]
+
+
+const publicImages = ["fire_thumbnail.png","ok_thumbnail.png"]
+const port = process.env.PORT
+const urls = publicImages.map(imageFileName => `http:localhost:${port}/static/${imageFileName}`)
 const cost = 0.01
 
 const {costCalculator, generator} = createFakeGenerator(urls,cost)

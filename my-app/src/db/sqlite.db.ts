@@ -1,43 +1,76 @@
 import IDB from "./interface.db";
 import { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import { icons, imageTokens, totalCost, users } from "schema";
-import { and, eq, inArray,count } from "drizzle-orm";
+import { and, eq, inArray, count, like, or } from "drizzle-orm";
 
 export default class SQliteDB implements IDB {
   private _db: BetterSQLite3Database<Record<string, never>>;
   constructor(db: BetterSQLite3Database<Record<string, never>>) {
     this._db = db;
   }
+  async removeImage(imageId: string, userId: string) {
+    await this._db
+      .delete(icons)
+      .where(and(eq(icons.id, imageId), eq(icons.owner, userId)));
+  }
+
+  private createSQLImageConditions(args: {
+    userId: string;
+    description?: string | undefined;
+    color?: string | undefined;
+    style?: string | undefined;
+  }) {
+    const { description, userId, color, style } = args;
+
+    type TConditions =
+      | ReturnType<typeof and>
+      | ReturnType<typeof or>
+      | ReturnType<typeof like>
+      | ReturnType<typeof eq>;
+    let sqlConditions: TConditions[] = [];
+
+    if (description !== undefined && description !== "") {
+      const wordMatches = description
+        .split(" ")
+        .map((word) => like(icons.description, `%${word}%`));
+
+      sqlConditions.push(or(...wordMatches));
+    }
+
+    if (color !== undefined && color !== "") {
+      sqlConditions.push(like(icons.color, `%${color}%`));
+    }
+
+    if (style !== undefined && style !== "") {
+      sqlConditions.push(like(icons.style, `%${style}%`));
+    }
+
+    sqlConditions.push(eq(icons.owner, userId));
+    return sqlConditions;
+  }
   async totalNumberOfImages(args: {
     userId: string;
     description?: string | undefined;
     color?: string | undefined;
     style?: string | undefined;
-    offset: number;
-    limit: number;
   }): Promise<number> {
-    const descriptionCondition =
-    args.description !== undefined
-      ? eq(icons.description, args.description)
-      : undefined;
-  const colorCondition =
-    args.color !== undefined ? eq(icons.color, args.color) : undefined;
-  const styleCondition =
-    args.style !== undefined ? eq(icons.style, args.style) : undefined;
+    const { description, userId, color, style } = args;
+    const sqlConditions = this.createSQLImageConditions({
+      description,
+      userId,
+      color,
+      style,
+    });
 
-  const conditions = [
-    descriptionCondition,
-    colorCondition,
-    styleCondition,
-  ].filter(Boolean);
-
-  const [item] = await this._db.select({totalNumberOfImages:count()}).from(icons).where(and(...conditions))
-  if (item === undefined){
-    throw new Error("undefined item")
+    const [item] = await this._db
+      .select({ totalNumberOfImages: count() })
+      .from(icons)
+      .where(and(...sqlConditions));
+    if (item === undefined) {
+      throw new Error("undefined item");
+    }
+    return item.totalNumberOfImages;
   }
-  return item.totalNumberOfImages
-  }
-
 
   async getUserId(email: string): Promise<string> {
     const [item] = await this._db
@@ -57,11 +90,9 @@ export default class SQliteDB implements IDB {
   }): Promise<
     { color: string; style: string; description: string; id: string }[]
   > {
-
-    if (args.imageIds.length ===0){
-      return []
+    if (args.imageIds.length === 0) {
+      return [];
     }
-
 
     return this._db
       .select({
@@ -76,6 +107,12 @@ export default class SQliteDB implements IDB {
       );
   }
 
+  async createTokens(userId: string, numberOfTokens: number): Promise<void> {
+    await this._db
+      .insert(imageTokens)
+      .values({ owner: userId, tokens: numberOfTokens });
+  }
+
   async getNumberOfTokens(userId: string): Promise<number> {
     const [item] = await this._db
       .select({ tokens: imageTokens.tokens })
@@ -88,7 +125,6 @@ export default class SQliteDB implements IDB {
     return item.tokens;
   }
 
-  
   async getImageIds(args: {
     userId: string;
     description?: string;
@@ -97,27 +133,23 @@ export default class SQliteDB implements IDB {
     offset: number;
     limit: number;
   }): Promise<string[]> {
-    const descriptionCondition =
-      args.description !== undefined
-        ? eq(icons.description, args.description)
-        : undefined;
-    const colorCondition =
-      args.color !== undefined ? eq(icons.color, args.color) : undefined;
-    const styleCondition =
-      args.style !== undefined ? eq(icons.style, args.style) : undefined;
-
-    const conditions = [
-      descriptionCondition,
-      colorCondition,
-      styleCondition,
-    ].filter(Boolean);
+    const { description, userId, color, style, limit, offset } = args;
+    const sqlConditions = this.createSQLImageConditions({
+      description,
+      userId,
+      color,
+      style,
+    });
 
     const items = await this._db
       .select({ id: icons.id })
       .from(icons)
-      .where(and(...conditions)).offset(args.offset).limit(args.limit)
-
-    return items.filter(Boolean).map((item) => item.id);
+      .where(and(...sqlConditions))
+      .offset(offset)
+      .limit(limit);
+    
+      console.log("ids")
+    return items.map((item) => item.id);
   }
   async getTotalCost(): Promise<number> {
     const fixedId = 0;
@@ -163,8 +195,13 @@ export default class SQliteDB implements IDB {
     await this._db
       .insert(icons)
       .values({ owner: userId, data, description, color, style });
+
   }
-  async decreaseTokenByOne(userId: string): Promise<void> {
+  async decreaseToken(args: {
+    userId: string;
+    tokensSpend: number;
+  }): Promise<void> {
+    const { userId, tokensSpend } = args;
     await this._db.transaction(async (tx) => {
       const [item] = await tx
         .select({ token: imageTokens.tokens })
@@ -175,7 +212,7 @@ export default class SQliteDB implements IDB {
         throw Error(`User with userId ${userId} is undefined`);
       }
       const tokens = item.token;
-      const tokensLeft = tokens - 1;
+      const tokensLeft = tokens - tokensSpend;
       await tx.update(imageTokens).set({ tokens: tokensLeft });
     });
   }

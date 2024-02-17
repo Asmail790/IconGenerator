@@ -4,8 +4,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Download } from "lucide-react";
+import { Download, Trash } from "lucide-react";
 import { Pagination } from "./pagination";
+import { deleteImage } from "../_actions/delete-image";
 
 
 type TImageData = {
@@ -29,18 +30,25 @@ type TProp = {
   pageInfo:TPageInfo,
 } 
 
-export function Collection(props:  TProp ) {
+
+
+export async function Collection(props:  TProp ) {
   const images = props.data.map((data,i) => (
     <Popover key={i}>
       <PopoverTrigger>
         <div className="relative">
           <a
-            className="absolute top-0 left-0 bg-slate-800 bg-opacity-50 rounded-full p-2 m-2"
+            className="absolute top-0 left-0 bg-slate-800 bg-opacity-90 rounded-full p-2 m-2"
             href={data.url}
             download
           >
-            <Download size={20} color="black" />
+            <Download  size={20} color="white" />
           </a>
+
+          <form action={deleteImage} className="absolute bg-slate-800 bg-opacity-90 top-0 right-0 p-2 m-2 rounded-full">
+            <input type="text" readOnly hidden value={data.url} name="url"/>
+            <input type="submit" value="delete"/>
+          </form>
           <Image src={data.url} alt="image" width={256} height={256} />
           <p>{data.description}</p>
         </div>

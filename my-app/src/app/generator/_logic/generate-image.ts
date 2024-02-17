@@ -7,6 +7,7 @@ import { db } from "@/global.config/db";
 import { calculateCost, generate } from "@/global.config/generator";
 import { totalCostLimit } from "@/global.config/totalCostLimit";
 
+
 type TGenerateOptions = {
   description: string;
   color: string;
@@ -16,11 +17,12 @@ type TGenerateOptions = {
 type TGenerateSuccessful = {
   isSuccess: true;
   imageUrls: string[];
+  ImageTokensLeft:number
 };
 
 type TGenerateUnsuccessful = {
   isSuccess: false;
-  messages: string;
+  message: string;
 };
 
 export type TGenerateState = (TGenerateSuccessful | TGenerateUnsuccessful) 
@@ -36,11 +38,15 @@ async function generateImage(args: {
   costCalculator: ImageCostCalculator;
   totalCostLimit: number;
 }): Promise<TGenerateState> {
-  const { style, color, description, numberOfImages, generator } = args;
+  const { style, color, description, numberOfImages,userId, generator } = args;
 
   const prompt = `Draw icon with style of ${style}, with background color of "${color}" and that fits the following description "${description}."`;
   const imageUrls = await generator({ numberOfImages, prompt });
+  
+  await db.decreaseToken({userId,tokensSpend:numberOfImages})
+  const ImageTokensLeft = await db.getNumberOfTokens(userId)
   return {
+    ImageTokensLeft,
     isSuccess: true,
     imageUrls
   };

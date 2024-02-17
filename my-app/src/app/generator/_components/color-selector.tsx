@@ -1,43 +1,33 @@
 "use client";
+import { buttonVariants } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
-import { SetStateAction, useEffect } from "react";
 import ColorPicker from "react-pick-color";
+import { predefinedColors } from "../../../_constants/colors";
+import { Input } from "@/components/ui/input";
+import { SetStateAction } from "react";
 
 //TODO fix design first button check colorselector.stories.
 export default function ColorSelector(props: {
   color: string;
-  setColor: (value: SetStateAction<string>) => void;
+  setColor:(value: string) => void;
 }) {
   const { color, setColor } = props;
 
-  const predefinedColors = [
-    "bg-neutral-800",
-    "bg-red-700",
-    "bg-orange-800",
-    "bg-yellow-800",
-    "bg-cyan-900",
-    "bg-emerald-900",
-  ];
 
   const tabsTriggers = [
-    ["Predefined colors", "predefined-colors"] as const,
+    ["Predefined color", "predefined-color"] as const,
     ["Color picker", "color-picker"] as const,
     ["Custom color", "custom"] as const,
   ].map(([text, value]) => (
     <TabsTrigger
       key={value}
       value={value}
-      className=" 
-  text-base
-  text-center
-  cursor-pointer 
-  p-1
-  m-2
-  transition-colors
-  rounded-lg
-  data-[state=active]:bg-slate-600"
+      className={cn(
+        "text-white capitalize p-2 self-center bg-slate-800 data-[state=active]:bg-slate-800 flex-1",
+        buttonVariants({ variant: "outline" })
+      )}
     >
       {text}
     </TabsTrigger>
@@ -45,36 +35,30 @@ export default function ColorSelector(props: {
 
   return (
     <>
-      <Tabs defaultValue="predefined-colors" className="">
-        <TabsList className="flex flex-row justify-between gap-10 bg-slate-900 rounded-lg">
+      <Tabs defaultValue="predefined-color">
+        <TabsList className="flex flex-row justify-between gap-4 flex-wrap">
           {tabsTriggers}
         </TabsList>
 
         <TabsContent
-          className="flex flex-col align-middle"
-          value="predefined-colors"
+          className="py-4"
+          value="predefined-color"
         >
-          <p className="text-base p-4 text-center">
-            Choose a predefined color.
-          </p>
+         
           <RadioGroup
-            defaultValue={color}
+            value={color}
             onValueChange={(chosenColor) => setColor(chosenColor)}
           >
-            <div className="flex flex-row justify-center flex-wrap gap-8 p-2">
+            <div className="flex flex-row flex-wrap gap-8">
               {predefinedColors.map((color, id) => (
-                <div  className="flex flex-col items-center gap-2">
                   <RadioGroupItem
+                    key={id}
                     value={color}
                     id={`${color}-color`}
-                    key={id}
-                    className={cn(
-                      "h-14 w-14 rounded-sm data-[state=checked]:scale-125 hover:scale-110 transition-transform",
-                      color
-                    )}
+                    className="h-14 w-14 rounded-sm data-[state=checked]:scale-125 data-[state=checked]:border-gray-300 data-[state=checked]:border-2 hover:scale-110 transition-transform"
+                    style={{background:color}}
+                    
                   />
-                  <p className="capitalize text-base text-cap text-center">{color}</p>
-                </div>
               ))}
             </div>
           </RadioGroup>
@@ -88,19 +72,16 @@ export default function ColorSelector(props: {
             onChange={(color) => setColor(color.hex)}
             hideAlpha
             hideInputs
-            theme={{ background: "rgb(2 6 23)", borderColor: "rgb(30 41 59)" }}
+            theme={{ background: "rgb(2,6,23)", borderColor: "rgb(2,6,23)" }}
             className="m-4"
           />
         </TabsContent>
         <TabsContent className="flex flex-col gap-4 py-4" value="custom">
-          <label htmlFor="custom-color" className="text-center text-base">
-            Hex-color
-          </label>
           <div className="flex flex-row gap-3 items-center">
-            <input
+            <Input
               id="custom-color"
-              className="text-base  grow text-in caret-inherit bg-gray-900 p-2"
               type="text"
+              placeholder="Hex-code such as #FF0000 or rgb such as rgb(255,0,0) or by name such as red"
               onChange={(e) => setColor(e.target.value)}
               value={color}
             />

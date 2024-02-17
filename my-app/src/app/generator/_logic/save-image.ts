@@ -52,6 +52,7 @@ async function saveImage(args: {
 }
 
 const imageFetcher: TImageFetcher = async (url) => {
+
   const response = await fetch(url);
   if (!response.ok) {
     return {

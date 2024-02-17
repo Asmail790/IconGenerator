@@ -1,8 +1,10 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { z } from "zod";
-import { FuncArgs } from "../actions/search";
+import { FuncArgs } from "../_actions/search";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 type RedirectFunc = (args: FuncArgs) => Promise<void>;
 type Props = { args: { style?: string; description?: string } };
@@ -11,27 +13,24 @@ export function SearchForm(props: {
 }) {
   const path = usePathname();
 
+  // TODO change style input to select tag
   return (
-    <form action={(data) => props.args.search({ data, invalidatedPath: path })}>
-      <label className="text-base" htmlFor="description">
-        Sescription
-      </label>
-      <input
-        className="bg-gray-900 p-2 block  w-full"
-        type="text"
-        name="description"
-        defaultValue={props.args.description}
-      />
-      <label className="text-base" htmlFor="style">
-        Style
-      </label>
-      <input
-        className="bg-gray-900 p-2 block w-full"
-        type="text"
-        name="style"
-        defaultValue={props.args.style}
-      />
-      <button type="submit">submit</button>
+    <form className="max-w-2xl mx-auto" action={(data) => props.args.search({ data, invalidatedPath: path })}>
+      <div className="py-4">
+        <Label htmlFor="description">Description</Label>
+        <Input
+          type="text"
+          name="description"
+          defaultValue={props.args.description}
+        />
+      </div>
+      <div className="py-4">
+        <Label htmlFor="style">Style</Label>
+        <Input type="text" name="style" defaultValue={props.args.style} />
+      </div>
+      <Button className="my-4" type="submit">
+        search
+      </Button>
     </form>
   );
 }

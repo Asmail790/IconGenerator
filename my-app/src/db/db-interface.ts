@@ -1,18 +1,18 @@
-
 export type ImageProps = {
   color: string;
   style: string;
   description: string;
   id: string;
 }[];
-export type removeImage = (imageId: string, userId: string) => Promise<void>;
+export type removeImage = (args: {
+  imageId: string;
+  userId: string;
+}) => Promise<void>;
 export type totalNumberOfImages = (args: {
   userId: string;
   description?: string | undefined;
   color?: string | undefined;
   style?: string | undefined;
-  offset: number;
-  limit: number;
 }) => Promise<number>;
 export type getImageProperties = (args: {
   userId: string;
@@ -44,9 +44,11 @@ export type decreaseToken = (args: {
   userId: string;
   tokensSpend: number;
 }) => Promise<void>;
-export type createTokens = (userId: string, numberOfTokens: number) => Promise<void>;
+export type setTokens = (args: {
+  userId: string;
+  numberOfTokens: number;
+}) => Promise<void>;
 export type addToTotalCost = (cost: number) => Promise<void>;
-
 
 export type DBInterface = {
   removeImage: removeImage;
@@ -60,6 +62,5 @@ export type DBInterface = {
   saveImage: saveImage;
   decreaseToken: decreaseToken;
   addToTotalCost: addToTotalCost;
-  createTokens: createTokens;
+  setTokens: setTokens;
 };
-

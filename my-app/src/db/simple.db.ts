@@ -152,7 +152,7 @@ export function createSimpleDB(initialStorage?: Storage): DBInterface {
     }): Promise<void> {
       getUser(args.userId).tokens -= args.tokensSpend;
     },
-    async createTokens(userId: string, numberOfTokens: number): Promise<void> {
+    async setTokens(userId: string, numberOfTokens: number): Promise<void> {
       getUser(userId).tokens = numberOfTokens;
     },
     async addToTotalCost(cost: number): Promise<void> {

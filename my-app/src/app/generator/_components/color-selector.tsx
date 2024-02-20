@@ -6,7 +6,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import ColorPicker from "react-pick-color";
 import { predefinedColors } from "../../../_constants/colors";
 import { Input } from "@/components/ui/input";
-import { SetStateAction } from "react";
 
 //TODO fix design first button check colorselector.stories.
 export default function ColorSelector(props: {

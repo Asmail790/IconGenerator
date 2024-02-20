@@ -13,8 +13,7 @@ import { Images } from "./images";
 import { SubmitButton } from "./submit-button";
 import { TStyle, isTStyle, styles } from "../../../_constants/styles";
 import { predefinedColors } from "../../../_constants/colors";
-import { imageTokens } from "schema";
-import { Toaster, toast } from "sonner";
+import {  toast } from "sonner";
 import { signIn, useSession } from "next-auth/react";
 import { redirect } from "next/dist/server/api-utils";
 
@@ -171,7 +170,6 @@ export default function ImageGeneratorForm(props: TGeneratorFormProps) {
   }
 
   function onStyleChange(value: TStyle) {
-    console.log(style);
     refWindow.current?.sessionStorage.setItem(
       "style" satisfies TStorageKey,
       String(value)

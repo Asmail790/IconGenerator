@@ -23,7 +23,7 @@ type ImgData = {
 
     
     const ids = await db.getImageIds({limit,offset,userId,description,style})
-    const totalImages = await db.totalNumberOfImages({limit,offset,userId,description,style})
+    const totalImages = await db.totalNumberOfImages({userId,description,style})
     const totalPages = Math.ceil(totalImages / pageSize);
     const lastPage = totalPages - 1;
     
@@ -33,7 +33,6 @@ type ImgData = {
       const url = mapUrl(img.id)
       return {url,description:img.description,style:img.style,color:img.color}
     })
-    console.log(imageData.length)
     return {imageData,lastPage}
   }
   

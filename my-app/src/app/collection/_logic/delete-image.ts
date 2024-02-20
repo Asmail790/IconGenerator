@@ -7,7 +7,7 @@ type DBUtils = Pick<DBInterface,"removeImage">
 async function removeImage(args:{db:DBUtils,url:string,userId:string,imageIdGetter:(url:string) => string}){
     const {db,imageIdGetter:getImageId ,userId,url} = args
     const imageId = getImageId(url)
-    await db.removeImage(imageId,userId)
+    await db.removeImage({imageId,userId})
 }
 
 export function createImageRemover(args:{db:DBUtils,imageIdGetter:(url:string) => string}){

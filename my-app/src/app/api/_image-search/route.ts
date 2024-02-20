@@ -22,7 +22,6 @@ export async function GET(request: Request) {
   );
 
   const email = await getUserEmail();
-  console.log(email)
   const userId = await getUserId(email);
 
   const { imageData, lastPage } = await getImages({

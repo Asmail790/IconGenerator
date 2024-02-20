@@ -1,13 +1,13 @@
-import IDB from "@/db/interface.db";
+import { DBInterface } from "@/db/db-interface";
 import { db } from "@/global.config/db";
 
 
 
-async function  getUserId(email:string,db:IDB){
+async function  getUserId(email:string,db:DBInterface){
     return  db.getUserId(email)
 }
 
-export function createUserIdGetter(db:IDB){
+export function createUserIdGetter(db:DBInterface){
     return (email:string) => getUserId(email,db)
 }
 

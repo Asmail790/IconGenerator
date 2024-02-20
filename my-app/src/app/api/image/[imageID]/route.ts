@@ -1,8 +1,5 @@
-import { eq } from "drizzle-orm";
-import { icons, users } from "../../../../../schema";
-import { db } from "@/global.config/db";
 import { defaultImageGetter as getImage } from "./_logic/get-image";
-import { auth, getUserEmail } from "../../auth/[...nextauth]/config";
+import { getUserEmail } from "../../auth/[...nextauth]/config";
 import { defaultGetUserId as getUserId } from "../../auth/_logic/get-user-id";
 
 type TSearchParams = { imageID: string };
@@ -19,5 +16,3 @@ export async function GET(
     headers: new Headers({ "Content-Type": "image/png" }),
   });
 }
-
-

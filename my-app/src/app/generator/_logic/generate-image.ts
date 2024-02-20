@@ -5,7 +5,7 @@ import {
 import { db } from "@/global.config/db";
 import { calculateCost, generate } from "@/global.config/generator";
 import { totalCostLimit } from "@/global.config/totalCostLimit";
-import { DBInterface } from "@/db/removeImage";
+import { DBInterface } from "@/db/db-interface";
 
 
 

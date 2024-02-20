@@ -8,7 +8,7 @@ export default {
     url: "sqlite-test.db",
   },
   verbose: true,
-  strict: true
+  strict: false
 } satisfies Config
 
 const file = __filename

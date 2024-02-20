@@ -1,4 +1,4 @@
-import { DBInterface } from "@/db/removeImage";
+import { DBInterface } from "@/db/db-interface";
 import { db } from "@/global.config/db";
 
 

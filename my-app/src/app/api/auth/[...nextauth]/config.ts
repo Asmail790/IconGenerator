@@ -1,8 +1,9 @@
 import NextAuth, { NextAuthConfig } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import { db } from "schema";
 import { defaultCreateTokens as createTokens } from "../_logic/create-initial-user-tokens";
+import { db } from "@/global.config/db";
+import { KyselyAdapter } from "@auth/kysely-adapter"
+
 
 function getGoogleEnvs() {
   if (process.env.GOOGLE_CLIENT_ID === undefined) {
@@ -29,7 +30,7 @@ function getSecret() {
 
 const config = {
   secret: getSecret(),
-  adapter: DrizzleAdapter(db),
+  adapter: KyselyAdapter(db.adapter() as any) as any,
   providers: [GoogleProvider(getGoogleEnvs())],
 
   events: {

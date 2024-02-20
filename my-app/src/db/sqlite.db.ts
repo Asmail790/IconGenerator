@@ -43,7 +43,8 @@ export function createSQliteDB(
   }
 
   return {
-    async removeImage(imageId: string, userId: string) {
+    async removeImage(args: { imageId: string; userId: string }) {
+      const { imageId, userId } = args;
       await db
         .delete(icons)
         .where(and(eq(icons.id, imageId), eq(icons.owner, userId)));
@@ -105,7 +106,11 @@ export function createSQliteDB(
           and(inArray(icons.id, args.imageIds), eq(icons.owner, args.userId))
         );
     },
-    async createTokens(userId: string, numberOfTokens: number): Promise<void> {
+    async setTokens(args: {
+      userId: string;
+      numberOfTokens: number;
+    }): Promise<void> {
+      const { userId, numberOfTokens } = args;
       await db
         .insert(imageTokens)
         .values({ owner: userId, tokens: numberOfTokens });
@@ -144,17 +149,17 @@ export function createSQliteDB(
         .offset(offset)
         .limit(limit);
 
-      console.log("ids");
       return items.map((item) => item.id);
     },
     async getTotalCost(): Promise<number> {
       const fixedId = 0;
       return await db.transaction(async (tx) => {
         const [item] = await tx
-          .select({ totalCost: totalCost.cost, id: totalCost.id })
+          .select({ totalCost: totalCost.cost })
           .from(totalCost)
           .where(eq(totalCost.id, fixedId))
           .limit(1);
+
         if (item === undefined) {
           tx.update(totalCost).set({ cost: 0, id: fixedId });
           return 0;
@@ -197,7 +202,7 @@ export function createSQliteDB(
       tokensSpend: number;
     }): Promise<void> {
       const { userId, tokensSpend } = args;
-      await  db.transaction(async (tx) => {
+      await db.transaction(async (tx) => {
         const [item] = await tx
           .select({ token: imageTokens.tokens })
           .from(imageTokens)
@@ -226,7 +231,7 @@ export function createSQliteDB(
           tx.update(totalCost).set({ cost: newTotalCost, id: fixedId });
         }
       });
-    }
+    },
   };
 }
 // export default class SQliteDB implements IDB {
@@ -374,7 +379,6 @@ export function createSQliteDB(
 //       .offset(offset)
 //       .limit(limit);
 
-//     console.log("ids");
 //     return items.map((item) => item.id);
 //   }
 //   async getTotalCost(): Promise<number> {

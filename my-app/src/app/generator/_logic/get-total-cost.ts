@@ -1,18 +1,12 @@
-import { DBInterface } from "@/db/removeImage";
+import { DBInterface } from "@/db/db-interface";
 import { db } from "@/global.config/db";
 
-
-type DBUtils = Pick<DBInterface,"getTotalCost">
-async function getTotalCost(db:DBUtils){
-    return db.getTotalCost()
+async function getTotalCost(db: Pick<DBInterface, "getTotalCost">) {
+  return db.getTotalCost();
 }
 
-
-export function createTotalCostGetter(db:DBUtils){
-    return () =>  getTotalCost(db)
-    
+export function createTotalCostGetter(db: Pick<DBInterface, "getTotalCost">) {
+  return () => getTotalCost(db);
 }
 
-export const defaultTotalCostGetter = createTotalCostGetter(db)
-
-
+export const defaultTotalCostGetter = createTotalCostGetter(db);

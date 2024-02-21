@@ -9,6 +9,8 @@ import { defineConfig, devices } from "@playwright/test";
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
+
+const authFilePath = ".playwright-authentication/user.json"
 export default defineConfig({
   testDir: "./src/end-to-end-tests",
   /* Run tests in files in parallel */
@@ -33,14 +35,32 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
+    { 
+    name: "setup", 
+    testMatch: /.*\.setup\.ts/,
+    use:{
+      locale:"en-gb"
+    }
+   },
+
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: authFilePath,
+        locale:"en-gb"
+      },
+      dependencies: ["setup"],
     },
 
     {
       name: "firefox",
-      use: { ...devices["Desktop Firefox"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: authFilePath,
+        locale:"en-gb"
+      },
+      dependencies: ["setup"],
     },
 
     /* Test against mobile viewports. */

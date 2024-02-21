@@ -18,7 +18,7 @@ export default function AD() {
         Image PlacerHolder
       </div>
       
-      <Link className={buttonVariants({ variant: "outline" })} href="/generator">start generate icons</Link>
+      <Link data-testid="generate-link" className={buttonVariants({ variant: "outline" })} href="/generator">start generate icons</Link>
     </div>
   );
 }

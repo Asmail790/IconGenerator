@@ -40,10 +40,10 @@ export function Header() {
     ));
 
   return (
-    <div className="flex flex-row flex-wrap justify-start gap-x-4 m-4">
+    <header className="flex flex-row flex-wrap justify-start gap-x-4 m-4">
       <User email={email} image={image} username={username} status={status} />
       {links}
-    </div>
+    </header>
   );
 }
 
@@ -56,15 +56,13 @@ function User(props: {
   if (props.status === "unauthenticated") {
     return (
       <div>
-        <button
-          className={cn(
-            "text-white p-2 self-center bg-slate-800 rounded-xl",
-            buttonVariants({ variant: "outline" })
-          )}
+        <Button
+          data-testid="sign-in-button"
+          className={buttonVariants({ variant: "outline" })}
           onClick={() => signIn()}
         >
           Sign in
-        </button>
+        </Button>
       </div>
     );
   }
@@ -98,7 +96,7 @@ function User(props: {
             <AvatarFallback>{letters} </AvatarFallback>
           </Avatar>
         </PopoverTrigger>
-        <p>{props.email}</p>
+        <p data-testid="user-email">{props.email}</p>
         <PopoverContent>
           <button
             className={cn(

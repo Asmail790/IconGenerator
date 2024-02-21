@@ -1,7 +1,7 @@
 import "server-only"
 import { db } from "@/global.config/db";
 import { imageIdToURL } from "@/app/api/image/[imageID]/_logic/url-converter";
-import { DBInterface } from "@/db/db-interface";
+import { DBInterface } from "@/db/kysely/interface";
 
 type ImgData = {
     description: string;

@@ -1,6 +1,6 @@
-import { KyselyAuth, Database as TAdapter } from "@auth/kysely-adapter";
-import { SqliteDialect, type Generated, Kysely, GeneratedAlways } from "kysely";
-export interface KIDatabase {
+
+import { type Generated } from "kysely";
+export interface Schema {
   User: {
     id: Generated<string>;
     name: string | null;

@@ -18,7 +18,7 @@ type Story = StoryObj<typeof StyledPagination>;
 
 
 
-export const onePage: Story = {
+export const OnePage: Story = {
     args:{
         activeIndexInWindow:0,
         lastPageNumber:0,
@@ -26,7 +26,7 @@ export const onePage: Story = {
     }
 
 };
-export const twoPageFirstActive: Story = {
+export const TwoPageFirstActive: Story = {
     args:{
         activeIndexInWindow:0,
         lastPageNumber:1,
@@ -36,7 +36,7 @@ export const twoPageFirstActive: Story = {
 };
 
 
-export const twoPageLastActive: Story = {
+export const TwoPageLastActive: Story = {
     args:{
         activeIndexInWindow:1,
         lastPageNumber:1,
@@ -45,7 +45,7 @@ export const twoPageLastActive: Story = {
 
 };
 
-export const threePageMiddleActive: Story = {
+export const ThreePageMiddleActive: Story = {
     args:{
         activeIndexInWindow:1,
         lastPageNumber:2,
@@ -54,7 +54,7 @@ export const threePageMiddleActive: Story = {
 
 };
 
-export const lastPageNumberOutsideWindow: Story = {
+export const LastPageNumberOutsideWindow: Story = {
     args:{
         activeIndexInWindow:1,
         lastPageNumber:8,

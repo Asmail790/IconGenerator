@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, test, expect, describe } from "@jest/globals";
-import { up } from "./migration";
+import { up } from "./sqlite.migration";
 import { createSQLiteDB } from "./sqlite.db";
 
 async function createInMemoryDB() {

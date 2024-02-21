@@ -1,20 +1,20 @@
 import Database from "better-sqlite3";
 import { type Database as Sqlite3Database } from "better-sqlite3";
-import { DBInterface } from "../db-interface";
+import { DBInterface } from "./interface";
 import { Kysely, SqliteDialect, ExpressionBuilder } from "kysely";
 import { v4 as uuidv4 } from "uuid";
-import { KIDatabase } from "./schema";
+import { Schema } from "./schema";
 
 export type TExtra = {
   originalDB: () => Sqlite3Database;
-  adapter: () => Kysely<KIDatabase>;
+  adapter: () => Kysely<Schema>;
 };
 export function createSQLiteDB(url: string): DBInterface & TExtra {
   const totalCostKey = "totalCost";
   const data = new Database(url);
   data.function("uuid", () => uuidv4());
 
-  const kysely = new Kysely<KIDatabase>({
+  const kysely = new Kysely<Schema>({
     dialect: new SqliteDialect({
       database: data,
     }),
@@ -22,7 +22,7 @@ export function createSQLiteDB(url: string): DBInterface & TExtra {
 
   function searchWords(
     description: string,
-    eb: ExpressionBuilder<KIDatabase, "Icon">
+    eb: ExpressionBuilder<Schema, "Icon">
   ) {
     const matches = description
       .split(" ")

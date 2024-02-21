@@ -15,14 +15,14 @@ export default meta;
 
 type Story = StoryObj<typeof ColorSelector>;
 
-export const blackAsDefault: Story = {
+export const BlackAsDefault: Story = {
   args:{
     color:"black",
     setColor:(e) => {}
   }
 };
 
-export const redAsDefault: Story = {
+export const RedAsDefault: Story = {
   args:{
     color:"red",
     setColor:(e) => {}

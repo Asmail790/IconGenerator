@@ -1,7 +1,7 @@
 import { Kysely, sql } from "kysely";
-import { KIDatabase } from "./schema";
+import { Schema } from "./schema";
 
-export async function up(db: Kysely<KIDatabase>): Promise<void> {
+export async function up(db: Kysely<Schema>): Promise<void> {
   await db.schema
     .createTable("User")
     .ifNotExists()
@@ -94,7 +94,7 @@ export async function up(db: Kysely<KIDatabase>): Promise<void> {
     .execute();
 }
 
-export async function down(db: Kysely<KIDatabase>): Promise<void> {
+export async function down(db: Kysely<Schema>): Promise<void> {
   await db.schema.dropTable("Account").ifExists().execute();
   await db.schema.dropTable("Session").ifExists().execute();
   await db.schema.dropTable("User").ifExists().execute();

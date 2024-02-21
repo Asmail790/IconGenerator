@@ -17,14 +17,14 @@ export default meta;
 
 type Story = StoryObj<typeof StyleSelector>;
 
-export const metallicChosen: Story = {
+export const MetallicChosen: Story = {
   args:{
     style:"metallic",
     setStyle:e => {}
   }
 };
 
-export const illustratedChosen: Story = {
+export const IllustratedChosen: Story = {
   args:{
     style:"illustrated",
     setStyle:e => {}

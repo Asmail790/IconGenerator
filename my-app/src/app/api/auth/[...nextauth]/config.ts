@@ -30,6 +30,7 @@ function getSecret() {
 
 const config = {
   secret: getSecret(),
+  trustHost:true,
   adapter: KyselyAdapter(db.adapter() as any) as any,
   providers: [GoogleProvider(getGoogleEnvs())],
 

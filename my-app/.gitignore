@@ -36,5 +36,13 @@ yarn-error.log*
 next-env.d.ts
 
 
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
 #db
-sqlite.db
+/sqlite.db
+
+#PlayWright
+/playwright/.auth

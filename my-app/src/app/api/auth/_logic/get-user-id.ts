@@ -1,4 +1,4 @@
-import { DBInterface } from "@/db/db-interface";
+import { DBInterface } from "@/db/kysely/interface";
 import { db } from "@/global.config/db";
 
 

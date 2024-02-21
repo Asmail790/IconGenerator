@@ -35,7 +35,7 @@ export default function ImageGeneratorForm(props: TGeneratorFormProps) {
   const [color, setColor] = useState<string>(predefinedColors[0]);
   const [style, setStyle] = useState<TStyle>(styles[0]);
   const [description, setDescription] = useState<string>("");
-  const [numberOfImages, setNumberOfImages] = useState<number>(0);
+  const [numberOfImages, setNumberOfImages] = useState<number>(1);
   const refWindow = useRef<Window | null>(null);
   const refCSS = useRef<typeof CSS | null>(null);
   const { status } = useSession();
@@ -189,8 +189,8 @@ export default function ImageGeneratorForm(props: TGeneratorFormProps) {
     0 < formErrors.length ? (
       <AlertInfo title="form errors">
         <ul>
-          {formErrors.map((error) => (
-            <li>{error}</li>
+          {formErrors.map((error,i) => (
+            <li key={i}>{error}</li>
           ))}
         </ul>
       </AlertInfo>

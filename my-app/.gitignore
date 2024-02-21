@@ -45,4 +45,4 @@ next-env.d.ts
 /sqlite.db
 
 #PlayWright
-/playwright/.auth
+/.playwright-authentication/

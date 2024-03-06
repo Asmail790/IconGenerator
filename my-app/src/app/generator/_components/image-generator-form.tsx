@@ -9,13 +9,16 @@ import StyleSelector from "./style-selector";
 import DescriptionInput from "./descrition-input";
 import NumberOfImagesInput from "./number-of-images-input";
 import { AlertInfo } from "./alert-info";
-import { Images } from "./images";
+import { Images } from "./Images";
 import { SubmitButton } from "./submit-button";
 import { TStyle, isTStyle, styles } from "../../../_constants/styles";
-import { predefinedColors } from "../../../_constants/colors";
-import {  toast } from "sonner";
+import { toast } from "sonner";
 import { signIn, useSession } from "next-auth/react";
 import { redirect } from "next/dist/server/api-utils";
+import { Title } from "@/components/ui/title";
+import { Separator } from "@/components/ui/separator";
+import { atomWithStorage } from "jotai/utils";
+import { useAtom } from "jotai";
 
 type TGeneratorFormProps = {
   imageGenerator: TGenerateImages;
@@ -23,55 +26,71 @@ type TGeneratorFormProps = {
   numberOfImageTokens: number;
 };
 
+// type Options<V> = (V extends string
+//   ? {
+//       parse: never;
+//       serialize: never;
+//     }
+//   : {
+//       parse: (value: string) => V;
+//       serialize: (value: V) => string;
+//     }) & { defaultValue: V };
+
+// function useLocalStorage<K extends string, V>(key: K, options: Options<V>) {
+//   const refWindow = useRef<typeof window | null>(null);
+//   const [state, setState] = useState(options.defaultValue);
+
+//   useEffect(() => {
+//     refWindow.current = window;
+//     if (window) {}
+//     const value = refWindow.current?.sessionStorage.getItem(key) ?? null;
+//     if (value !== null) {
+//       if (typeof options.defaultValue === "string") {
+//         setState(options.parse(value));
+//       } else {
+//         const newValue = options.parse(value);
+//         setState(newValue);
+//       }
+//     }
+//   });
+
+//   function saveState(newValue: V) {
+//     setState(newValue);
+//     window.sessionStorage.setItem(key, serialize(newValue));
+//   }
+
+//   function getState() {
+//     return state;
+//   }
+// }
+
+const colorAtom = atomWithStorage<string>("color","black");
+const styleAtom = atomWithStorage<TStyle>("style", styles[0]);
+const numberOfImagesAtom = atomWithStorage("numberOfImages", 1);
+const descriptionAtom = atomWithStorage("description", "");
+
 export default function ImageGeneratorForm(props: TGeneratorFormProps) {
   const { imageGenerator, imageSaver } = props;
+  const refCSS = useRef<typeof CSS | null>(null);
 
-  type TStorageKey = "description" | "color" | "style" | "numberOfImages";
-  const descriptionMaxLength = 200;
-  const descriptionMinLength = 1;
+
+  const [color, setColor] = useAtom(colorAtom);
+  const [style, setStyle] = useAtom(styleAtom);
+  const [numberOfImages, setNumberOfImages] = useAtom(numberOfImagesAtom);
+  const [description, setDescription] = useAtom(descriptionAtom);
+
+
   const [formErrors, setFormErrors] = useState<string[]>([]);
   const [tokens, setTokens] = useState(props.numberOfImageTokens);
-  const [urls, setUrls] = useState<string[]>([]);
-  const [color, setColor] = useState<string>(predefinedColors[0]);
-  const [style, setStyle] = useState<TStyle>(styles[0]);
-  const [description, setDescription] = useState<string>("");
-  const [numberOfImages, setNumberOfImages] = useState<number>(1);
-  const refWindow = useRef<Window | null>(null);
-  const refCSS = useRef<typeof CSS | null>(null);
+  const [images, setImages] = useState<{url:string,base64Img:string}[]>([]);
+
+
+  const descriptionMaxLength = 200;
+  const descriptionMinLength = 1;
   const { status } = useSession();
 
   useEffect(() => {
-    refWindow.current = window;
     refCSS.current = CSS;
-  }, []);
-
-  useEffect(() => {
-    const storedDescription = sessionStorage.getItem(
-      "description" satisfies TStorageKey
-    );
-
-    if (storedDescription !== null) {
-      setDescription(storedDescription);
-    }
-
-    const storedNbrOfImgs = sessionStorage.getItem(
-      "numberOfImages" satisfies TStorageKey
-    );
-
-    if (storedNbrOfImgs !== null && !Number.isNaN(storedNbrOfImgs)) {
-      setNumberOfImages(parseInt(storedNbrOfImgs));
-    }
-
-    const storedColor = sessionStorage.getItem("color" satisfies TStorageKey);
-
-    if (storedColor !== null) {
-      setColor(storedColor);
-    }
-
-    const storedStyle = sessionStorage.getItem("style" satisfies TStorageKey);
-    if (storedStyle !== null && isTStyle(storedStyle)) {
-      setStyle(storedStyle);
-    }
   }, []);
 
   type TFormErrorMessages =
@@ -143,53 +162,53 @@ export default function ImageGeneratorForm(props: TGeneratorFormProps) {
       return;
     }
 
-    const result = await props.imageGenerator(args);
+    const result = await imageGenerator(args);
 
     if (result.isSuccess) {
       setTokens(result.ImageTokensLeft);
-      setUrls(result.imageUrls);
+      setImages(result.images);
     } else {
       toast(result.message);
     }
   }
 
-  function onColorChange(value: string) {
-    refWindow.current?.sessionStorage.setItem(
-      "color" satisfies TStorageKey,
-      String(value)
-    );
-    setColor(value);
-  }
+  // function onColorChange(value: string) {
+  //   refWindow.current?.sessionStorage.setItem(
+  //     "color" satisfies TStorageKey,
+  //     String(value)
+  //   );
+  //   setColor(value);
+  // }
 
-  function onNumberOfImagesChange(value: number) {
-    refWindow.current?.sessionStorage.setItem(
-      "numberOfImages" satisfies TStorageKey,
-      String(value)
-    );
-    setNumberOfImages(value);
-  }
+  // function onNumberOfImagesChange(value: number) {
+  //   refWindow.current?.sessionStorage.setItem(
+  //     "numberOfImages" satisfies TStorageKey,
+  //     String(value)
+  //   );
+  //   setNumberOfImages(value);
+  // }
 
-  function onStyleChange(value: TStyle) {
-    refWindow.current?.sessionStorage.setItem(
-      "style" satisfies TStorageKey,
-      String(value)
-    );
-    setStyle(value);
-  }
+  // function onStyleChange(value: TStyle) {
+  //   refWindow.current?.sessionStorage.setItem(
+  //     "style" satisfies TStorageKey,
+  //     String(value)
+  //   );
+  //   setStyle(value);
+  // }
 
-  function onDescriptionChange(value: string) {
-    refWindow.current?.sessionStorage.setItem(
-      "description" satisfies TStorageKey,
-      String(value)
-    );
-    setDescription(value);
-  }
+  // function onDescriptionChange(value: string) {
+  //   refWindow.current?.sessionStorage.setItem(
+  //     "description" satisfies TStorageKey,
+  //     String(value)
+  //   );
+  //   setDescription(value);
+  // }
 
   const formAlert =
     0 < formErrors.length ? (
       <AlertInfo title="form errors">
         <ul>
-          {formErrors.map((error,i) => (
+          {formErrors.map((error, i) => (
             <li key={i}>{error}</li>
           ))}
         </ul>
@@ -198,33 +217,37 @@ export default function ImageGeneratorForm(props: TGeneratorFormProps) {
   // Todo replace with shadc ui if can persist state between reloads.
   return (
     <div className="flex flex-col justify-center items-center">
-      <form className="max-w-2xl" action={action}>
-        <p className="text-2xl p-2 text-left font-semibold capitalize">
-          tokens left: {tokens}
-        </p>
-        <ColorSelector color={color} setColor={onColorChange} />
-        <StyleSelector style={style} setStyle={onStyleChange} />
-        <DescriptionInput
-          description={description}
-          minLength={descriptionMinLength}
-          maxLength={descriptionMaxLength}
-          setDescription={onDescriptionChange}
-        />
-        <NumberOfImagesInput
-          numberOfImages={numberOfImages}
-          setNumberOfImages={onNumberOfImagesChange}
-        />
+      <form className="flex flex-col max-w-2xl gap-4" action={action}>
+        <p className=" text-left capitalize">tokens left: {tokens}</p>
+        <ColorSelector color={color} setColor={(x) => setColor(x)} />
+        <StyleSelector style={style} setStyle={(x) => setStyle(x)} />
+
+        <div>
+          <Title>Other</Title>
+          <Separator className="my-4" orientation="horizontal" />
+          <div className="flex flex-col gap-2">
+            <DescriptionInput
+              description={description}
+              minLength={descriptionMinLength}
+              maxLength={descriptionMaxLength}
+              setDescription={setDescription}
+            />
+            <NumberOfImagesInput
+              numberOfImages={numberOfImages}
+              setNumberOfImages={setNumberOfImages}
+            />
+          </div>
+        </div>
         <SubmitButton />
         {formAlert}
       </form>
-      
 
       <Images
         saver={imageSaver}
         description={description}
         style={style}
         color={color}
-        urls={urls}
+        images={images}
       />
     </div>
   );

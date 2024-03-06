@@ -9,11 +9,12 @@ export default function DescriptionInput(props: {
   setDescription: (value: string) => void;
 }) {
   return (
-    <div className="flex flex-col gap-2 justify-center my-4">
+    <div className="">
       <Label  htmlFor="description">
         Describe your icon
       </Label>
       <Input
+      data-testid="description-images"
         maxLength={props.maxLength}
         minLength={props.minLength}
         type="text"

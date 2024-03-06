@@ -1,5 +1,5 @@
-import { DBInterface } from "@/db/kysely/interface";
-import { db } from "@/global.config/db";
+import { DBInterface } from "@/db/interface";
+import { promiseDB } from "@/global.config/db";
 type TSuccessfulImageDownload = {
   successful: true;
   buffer: Buffer;
@@ -32,11 +32,12 @@ async function saveImage(args: {
   description: string;
   color: string;
   style: string;
-  db: DBUtils;
+  db: Promise<DBUtils>;
   url: string;
   getImageData: TImageFetcher;
 }): Promise<SaveImageStatus> {
-  const { userId, description, color, style, db, url, getImageData } = args;
+  const { userId, description, color, style, url, getImageData } = args;
+  const db = await args.db
 
   const response = await getImageData(url);
   if (!response.successful) {
@@ -72,7 +73,7 @@ const imageFetcher: TImageFetcher = async (url) => {
 };
 
 export function createImageSaver(config: {
-  db: DBUtils;
+  db: Promise<DBUtils>;
   getImageData: TImageFetcher;
 }) {
   return (args: {
@@ -85,6 +86,6 @@ export function createImageSaver(config: {
 }
 
 export const defaultImageSaver = createImageSaver({
-  db,
+  db: promiseDB,
   getImageData: imageFetcher,
 });

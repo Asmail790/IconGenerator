@@ -1,7 +1,7 @@
-import NextAuth, { NextAuthConfig } from "next-auth";
+import nextAuth, { NextAuthConfig } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { defaultCreateTokens as createTokens } from "../_logic/create-initial-user-tokens";
-import { db } from "@/global.config/db";
+import { promiseDB } from "@/global.config/db";
 import { KyselyAdapter } from "@auth/kysely-adapter"
 
 
@@ -28,26 +28,38 @@ function getSecret() {
   return process.env.AUTH_SECRET;
 }
 
-const config = {
-  secret: getSecret(),
-  trustHost:true,
-  adapter: KyselyAdapter(db.adapter() as any) as any,
-  providers: [GoogleProvider(getGoogleEnvs())],
 
-  events: {
-    async createUser(message) {
-      const userId = message.user.id;
-      if (userId === undefined) {
-        throw Error("userId is undefined");
-      }
-      createTokens(userId);
+
+async function setUpNextAuth(){
+  const config = {
+    secret: getSecret(),
+    trustHost:true,
+    adapter: KyselyAdapter( (await promiseDB).adapter() as any) as any,
+    providers: [GoogleProvider(getGoogleEnvs())],
+  
+    events: {
+      async createUser(message) {
+        const userId = message.user.id;
+        if (userId === undefined) {
+          throw Error("userId is undefined");
+        }
+        createTokens(userId);
+      },
     },
-  },
-} satisfies NextAuthConfig;
+  } satisfies NextAuthConfig;
+  
+  // const { auth, handlers } = nextAuth(config);
+  // const {GET,POST} = handlers
 
-const { auth, handlers } = NextAuth(config);
+  // return {auth,GET,POST}
+
+  return nextAuth(config)
+}
+
+const nextAuthPromiseInstance = setUpNextAuth()
 
 async function getUserEmail() {
+  const {auth} = await nextAuthPromiseInstance
   const email = (await auth())?.user?.email ?? undefined;
 
   if (email === undefined) {
@@ -58,9 +70,10 @@ async function getUserEmail() {
 }
 
 async function isLoggedIn() {
+  const {auth} = await nextAuthPromiseInstance
   const isLoggedIn = await auth() !== null;
   return isLoggedIn
 }
 
-const { GET, POST } = handlers;
-export { auth, GET, POST, getUserEmail,isLoggedIn };
+
+export {  nextAuthPromiseInstance, getUserEmail,isLoggedIn };

@@ -4,7 +4,7 @@ import { SaveImageStatus, defaultImageSaver as _saveImage } from "../_logic/save
 import { defaultGetUserId as getUserId } from "../../api/auth/_logic/get-user-id";
 import { getUserEmail } from "../../api/auth/[...nextauth]/config";
 import { revalidatePath } from "next/cache";
-import { checkPath } from "@/app/path-register";
+import { checkPath } from "@/app/_path-register";
 
 const schema = z.object({
   description: z.string(),

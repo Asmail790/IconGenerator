@@ -1,7 +1,7 @@
 import "server-only"
-import { db } from "@/global.config/db";
+import { promiseDB } from "@/global.config/db";
 import { imageIdToURL } from "@/app/api/image/[imageID]/_logic/url-converter";
-import { DBInterface } from "@/db/kysely/interface";
+import { DBInterface } from "@/db/interface";
 
 type ImgData = {
     description: string;
@@ -16,10 +16,11 @@ type ImgData = {
   }
   
   type DBUtils = Pick<DBInterface,"getImageProperties"|"totalNumberOfImages"|"getImageIds">
-  async function getImages(args:{db:DBUtils,style?:string,description?:string,pageIndex:number,pageSize:number,userId:string,mapUrl:(id:string) => string}):Promise<Result>{
-    const {style,description,pageIndex,pageSize,userId,mapUrl,db} =args 
+  async function getImages(args:{db:Promise<DBUtils>,style?:string,description?:string,pageIndex:number,pageSize:number,userId:string,mapUrl:(id:string) => string}):Promise<Result>{
+    const {style,description,pageIndex,pageSize,userId,mapUrl} =args 
     const limit = pageSize
     const offset = pageSize*pageIndex
+    const db = await args.db
 
     
     const ids = await db.getImageIds({limit,offset,userId,description,style})
@@ -37,8 +38,8 @@ type ImgData = {
   }
   
   
-function createGetImages(config:{db:DBUtils,mapUrl:(id:string) => string }){
+function createGetImages(config:{db:Promise<DBUtils>,mapUrl:(id:string) => string }){
     return (args:{style?:string,description?:string,pageIndex:number,pageSize:number,userId:string}) => getImages({...args,...config})
   }
 
-  export const defaultGetImages =  createGetImages({db, mapUrl: imageIdToURL})
+  export const defaultGetImages =  createGetImages({db: promiseDB, mapUrl: imageIdToURL})

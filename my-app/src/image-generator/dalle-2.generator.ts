@@ -23,6 +23,8 @@ const generator: ImageGenerator = async (args) => {
     return img.url;
   });
 
+// const urls2 =[`http:localhost:3000/static/fire_thumbnail.png`]
+
   return urls;
 };
 

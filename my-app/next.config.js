@@ -14,8 +14,22 @@ const nextConfig = {
             port: '3000',
             pathname: '/static/*',
           },
+          {
+            hostname:"oaidalleapiprodscus.blob.core.windows.net"
+
+          }
         ],
-      }
+        
+      },
+  async redirects(){
+    return [
+      {
+        source: '/',
+        destination: '/home',
+        permanent:true
+      },
+    ]
+  },
 }
 
 module.exports = nextConfig

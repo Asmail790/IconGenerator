@@ -2,16 +2,16 @@ import {
   ImageCostCalculator,
   ImageGenerator,
 } from "@/image-generator/generator.interface";
-import { db } from "@/global.config/db";
+import { promiseDB } from "@/global.config/db";
 import { calculateCost, generate } from "@/global.config/generator";
 import { totalCostLimit } from "@/global.config/totalCostLimit";
-import { DBInterface } from "@/db/kysely/interface";
+import { DBInterface } from "@/db/interface";
 
 
 
 type TGenerateSuccessful = {
   isSuccess: true;
-  imageUrls: string[];
+  images:{url:string,base64Img:string}[];
   ImageTokensLeft:number
 };
 
@@ -29,27 +29,38 @@ async function generateImage(args: {
   description: string;
   numberOfImages: number;
   userId: string;
-  db:DBUtils
+  db:Promise<DBUtils>
   generator: ImageGenerator;
   costCalculator: ImageCostCalculator;
   totalCostLimit: number;
 }): Promise<TGenerateState> {
   const { style, color, description, numberOfImages,userId, generator } = args;
+  const db = await args.db
 
-  const prompt = `Draw icon with style of ${style}, with background color of "${color}" and that fits the following description "${description}."`;
+  const prompt = `Generate an ${style} icon with primary color of "${color}" and that represents "${description}."`;
   const imageUrls = await generator({ numberOfImages, prompt });
+  const images = await Promise.all(imageUrls.map( async url => {
+    const response = await fetch(url)
+    const blob = await response.blob()
+    const arrayBuffer = await blob.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+    
+    const base64Img = `data:${blob.type};base64,${buffer.toString("base64")}`
+    return {base64Img,url}
+  }))
+  
   
   await db.decreaseToken({userId,tokensSpend:numberOfImages})
   const ImageTokensLeft = await db.getNumberOfTokens(userId)
   return {
     ImageTokensLeft,
     isSuccess: true,
-    imageUrls
+    images
   };
 }
 
 export function createImageGenerator(config: {
-  db: DBUtils
+  db: Promise<DBUtils>
   generator: ImageGenerator;
   costCalculator: ImageCostCalculator;
   totalCostLimit: number;
@@ -63,4 +74,4 @@ export function createImageGenerator(config: {
   }) => generateImage({ ...requestArgs, ...config });
 }
 
-export const defaultImageGenerator = createImageGenerator({db,generator:generate,costCalculator:calculateCost,totalCostLimit})
+export const defaultImageGenerator = createImageGenerator({db:promiseDB,generator:generate,costCalculator:calculateCost,totalCostLimit})

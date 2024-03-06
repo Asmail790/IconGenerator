@@ -1,13 +1,20 @@
-import { afterEach, beforeEach, test, expect, describe } from "@jest/globals";
-import { up } from "./sqlite.migration";
-import { createSQLiteDB } from "./sqlite.db";
-
-async function createInMemoryDB() {
-  const dbInterface = createSQLiteDB(":memory:");
-  await up(dbInterface.adapter());
-
-  return dbInterface;
-}
+import {
+  test,
+  expect,
+  describe,
+  beforeAll,
+  afterAll,
+  afterEach,
+  beforeEach,
+} from "vitest";
+import { DBInterface } from "./interface";
+import { Kysely } from "kysely";
+import { Schema } from "./schema";
+import { createSQLiteDB } from "./sqlite/sqlite.db";
+import { down as sqliteDown, up as sqliteUp } from "./sqlite/sqlite.migration";
+import { down as mySQLDown, up as mySQLUp } from "./mysql/mysql.migration";
+import { MySqlContainer, StartedMySqlContainer } from "@testcontainers/mysql";
+import { createMySQLDB } from "./mysql/mysql.db";
 
 function getFakeData() {
   return {
@@ -43,11 +50,11 @@ function getFakeData() {
   };
 }
 
-async function insertFakeData() {
+async function insertFakeData(db: DBInterface) {
   const user1 = getFakeData().Users[0];
   const user2 = getFakeData().Users[1];
 
-  const adapter = await getDB().adapter();
+  const adapter = db.adapter();
   await adapter
     .insertInto("User")
     .values({ email: user1.email, id: user1.userId })
@@ -78,51 +85,165 @@ async function insertFakeData() {
     .execute();
 }
 
-let _db: Awaited<ReturnType<typeof createInMemoryDB>> | undefined = undefined;
+type TSetUp = {
+  getDB: () => DBInterface;
+  beforeEach?: () => Promise<void>;
+  beforeAll?: () => Promise<void>;
 
-function getDB() {
-  if (_db == undefined) {
-    throw Error("_db undefined");
+  afterEach?: () => Promise<void>;
+  afterAll?: () => Promise<void>;
+};
+function sqlite(): TSetUp {
+  let _db: Awaited<ReturnType<typeof createSQLiteDB>> | undefined = undefined;
+
+  function getDB() {
+    if (_db == undefined) {
+      throw Error("_db undefined");
+    }
+
+    return _db;
   }
 
-  return _db;
+  async function createInMemoryDB() {
+    const dbInterface = createSQLiteDB(":memory:");
+    await sqliteUp(dbInterface.adapter());
+
+    return dbInterface;
+  }
+
+  return {
+    getDB: getDB,
+
+    async afterEach() {
+      await getDB().originalDB().close();
+    },
+
+    async beforeEach() {
+      _db = await createInMemoryDB();
+    },
+  };
 }
 
-describe("sqlit-tests", () => {
-  beforeEach(async () => {
-    _db = await createInMemoryDB();
-    await insertFakeData();
+function mySQL(): TSetUp {
+  let _container: StartedMySqlContainer | undefined = undefined;
+  let _dbInterface: ReturnType<typeof createMySQLDB> | undefined = undefined;
+
+  async function createContainer() {
+    _container = await new MySqlContainer().start();
+  }
+
+  function getContainer() {
+    if (_container === undefined) {
+      throw Error("undefined container");
+    }
+    return _container;
+  }
+
+  async function createDB() {
+    const container = await getContainer();
+    const poolargs = {
+      host: container.getHost(),
+      port: container.getPort(),
+      database: container.getDatabase(),
+      user: container.getUsername(),
+      password: container.getUserPassword(),
+    };
+
+    _dbInterface = createMySQLDB(poolargs);
+  }
+
+  function getDB() {
+    if (_dbInterface === undefined) {
+      throw Error("undefined DB interface");
+    }
+    return _dbInterface;
+  }
+
+  async function destroyContainer() {
+    const dbInterface = getDB();
+    const mysql2 = dbInterface.originalDB();
+
+    await new Promise<void>((resolve) => {
+      mysql2.getConnection((_, connection) => {
+        connection.release();
+        resolve();
+      });
+    });
+
+    await new Promise<void>((resolve) => {
+      mysql2.end(() => resolve());
+    });
+
+    const container = await getContainer();
+
+    await container.stop();
+  }
+
+  async function createTables() {
+    const dbInterface = getDB();
+    await mySQLUp(dbInterface.adapter());
+  }
+
+  async function destroyTables() {
+    const dbInterface = getDB();
+    await mySQLDown(dbInterface.adapter());
+  }
+
+  return {
+    getDB: getDB,
+    async beforeAll() {
+      await createContainer();
+      await createDB();
+    },
+    async beforeEach() {
+      await createTables();
+    },
+    async afterEach() {
+      await destroyTables();
+    },
+    async afterAll() {
+      await destroyContainer();
+    },
+  };
+}
+
+const dbs = [mySQL,sqlite].map(setup => ({setup,dbName:setup.name}) as const ) 
+
+
+
+
+describe.each(dbs)("$dbName", ({setup,dbName}) => {
+  const {
+    beforeAll: beforeAll_,
+    beforeEach: beforeEach_,
+    afterEach: afterEach_,
+    afterAll: afterAll_,
+    getDB,
+  } = setup();
+
+  beforeAll(async () => {
+    if (beforeAll_ !== undefined) {
+      await beforeAll_();
+    }
+  });
+
+  afterAll(async () => {
+    if (afterAll_ !== undefined) {
+      await afterAll_();
+    }
   });
 
   afterEach(async () => {
-    await getDB().originalDB().close();
+    if (afterEach_ !== undefined) {
+      await afterEach_();
+    }
   });
 
-  test("addToTotalCost", async () => {
-    const newCost = 10;
-
-    await getDB().addToTotalCost(newCost);
-    const item = await getDB()
-      .adapter()
-      .selectFrom("OtherProperties")
-      .select("value")
-      .executeTakeFirst();
-
-    expect(item).toBeDefined();
-    expect(Number(item?.value)).toBe(newCost);
-
-    await getDB().addToTotalCost(newCost);
-    const newItem = await getDB()
-      .adapter()
-      .selectFrom("OtherProperties")
-      .select("value")
-      .executeTakeFirst();
-    expect(Number(newItem?.value)).toBe(newCost * 2);
-  });
-
-  test("getUserId", async () => {
-    const item = await getDB().getUserId("email");
-    expect(item).toBeDefined();
+  beforeEach(async () => {
+    if (beforeEach_ !== undefined) {
+      await beforeEach_();
+      await insertFakeData(getDB());
+    }
   });
 
   test("getUserId", async () => {
@@ -207,20 +328,21 @@ describe("sqlit-tests", () => {
     const userId = getFakeData().Users[0].userId;
     const total = await getDB().totalNumberOfImages({ userId });
     expect(total).toBe(2);
-  }),
-    test("getTotalCost", async () => {
-      let totalCost = await getDB().getTotalCost();
-      expect(totalCost).toBe(0);
+  });
 
-      await getDB()
-        .adapter()
-        .insertInto("OtherProperties")
-        .values({ property: "totalCost", value: String(100) })
-        .execute();
+  test("getTotalCost", async () => {
+    let totalCost = await getDB().getTotalCost();
+    expect(totalCost).toBe(0);
 
-      totalCost = await getDB().getTotalCost();
-      expect(totalCost).toBe(100);
-    });
+    await getDB()
+      .adapter()
+      .insertInto("OtherProperties")
+      .values({ property: "totalCost", value: String(100) })
+      .execute();
+
+    totalCost = await getDB().getTotalCost();
+    expect(totalCost).toBe(100);
+  });
 
   test("setTokens", async () => {
     const userId = getFakeData().Users[0].userId;

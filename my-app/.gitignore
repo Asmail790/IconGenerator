@@ -42,7 +42,12 @@ next-env.d.ts
 /playwright/.cache/
 
 #db
-sqlite.db
+/sqlite.db
+/src/end-to-end-tests/auth
 
 #PlayWright
-/.playwright-authentication/
+/src/end-to-end-tests/auth
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

@@ -19,6 +19,7 @@ export function SearchForm(props: {
       <div className="py-4">
         <Label htmlFor="description">Description</Label>
         <Input
+        data-testid="description-search-input"
           type="text"
           name="description"
           defaultValue={props.args.description}
@@ -26,7 +27,9 @@ export function SearchForm(props: {
       </div>
       <div className="py-4">
         <Label htmlFor="style">Style</Label>
-        <Input type="text" name="style" defaultValue={props.args.style} />
+        <Input 
+        data-testid="style-search-input"
+        type="text" name="style" defaultValue={props.args.style} />
       </div>
       <Button className="my-4" type="submit">
         search

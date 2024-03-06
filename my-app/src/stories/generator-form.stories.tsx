@@ -26,7 +26,7 @@ export const Story:Story ={
           const {numberOfImages} = args
             
             const urls = await generator({prompt:"",numberOfImages})
-            return {ImageTokensLeft:5,isSuccess:true,imageUrls:urls}
+            return {ImageTokensLeft:5,isSuccess:true,images:[]}
             
         },
         

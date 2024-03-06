@@ -5,7 +5,7 @@ import { querySchema } from "./_shared/schema";
 import { getUserEmail, isLoggedIn } from "../api/auth/[...nextauth]/config";
 import { defaultGetUserId as getUserId } from "../api/auth/_logic/get-user-id";
 import { defaultGetImages as getImages } from "@/app/collection/_logic/get-images";
-import { SignInRequest } from "../_components/sign-message";
+import { SignInRequest } from "../home/_components/sign-message";
 
 
 

@@ -9,8 +9,8 @@ import { defineConfig, devices } from "@playwright/test";
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
+const authFilePath = "./src/end-to-end-tests/auth/user.json";
 
-const authFilePath = ".playwright-authentication/user.json"
 export default defineConfig({
   testDir: "./src/end-to-end-tests",
   /* Run tests in files in parallel */
@@ -22,7 +22,7 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: "html",
+  reporter: "null",
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
@@ -35,34 +35,32 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
-    { 
-    name: "setup", 
-    testMatch: /.*\.setup\.ts/,
-    use:{
-      locale:"en-gb"
-    }
-   },
-
+    {
+      name: "setup",
+      testMatch:  /.*\.setup\.ts/,
+      use: {
+        locale: "en-gb",
+      },
+    },
     {
       name: "chromium",
       use: {
         ...devices["Desktop Chrome"],
-        storageState: authFilePath,
-        locale:"en-gb"
+        //storageState: authFilePath,
+        locale: "en-gb",
       },
-      dependencies: ["setup"],
+      //dependencies: ["setup"],
     },
 
     {
       name: "firefox",
       use: {
-        ...devices["Desktop Chrome"],
-        storageState: authFilePath,
-        locale:"en-gb"
+        ...devices["Desktop Firefox"],
+        //storageState: authFilePath,
+        locale: "en-gb",
       },
-      dependencies: ["setup"],
+      //dependencies: ["setup"],
     },
-
     /* Test against mobile viewports. */
     // {
     //   name: 'Mobile Chrome',

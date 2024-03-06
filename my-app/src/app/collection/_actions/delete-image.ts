@@ -7,11 +7,9 @@ import { revalidatePath } from "next/cache"
 import { getUserEmail } from "@/app/api/auth/[...nextauth]/config"
 
 
-const schema = z.string() 
-export async function deleteImage(formData:FormData){
+export async function deleteImage(imageUrl:string){
     const email = await getUserEmail()
     const userId =await getUserId(email)
-    const imageUrl = schema.parse(formData.get("url") )
     await removeImage(imageUrl,userId)
     revalidatePath('/collection')
 }

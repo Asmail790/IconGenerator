@@ -1,3 +1,6 @@
+import { Kysely } from "kysely";
+import { Schema } from "./schema";
+
 export type ImageProps = {
   color: string;
   style: string;
@@ -50,6 +53,8 @@ export type setTokens = (args: {
 }) => Promise<void>;
 export type addToTotalCost = (cost: number) => Promise<void>;
 
+export const totalCostKey = "totalCost";
+
 export type DBInterface = {
   removeImage: removeImage;
   totalNumberOfImages: totalNumberOfImages;
@@ -63,4 +68,5 @@ export type DBInterface = {
   decreaseToken: decreaseToken;
   addToTotalCost: addToTotalCost;
   setTokens: setTokens;
+  adapter:()=>Kysely<Schema>
 };

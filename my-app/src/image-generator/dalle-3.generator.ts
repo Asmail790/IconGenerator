@@ -3,7 +3,7 @@ import { OpenAI } from "openai";
 import { ImageGenerateParams } from "openai/resources/images.mjs";
 const openai = new OpenAI();
 
-const generator: ImageGenerator = async (args) => {
+export const generator: ImageGenerator = async (args) => {
   const { prompt, numberOfImages } = args;
   const option: ImageGenerateParams = {
     prompt,
@@ -23,5 +23,5 @@ const generator: ImageGenerator = async (args) => {
   return urls;
 };
 
-const costCalculator: ImageCostCalculator = (numberOfImages: number) =>
+export const costCalculator: ImageCostCalculator = (numberOfImages: number) =>
   0.04 * numberOfImages;

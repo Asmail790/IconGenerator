@@ -1,28 +1,64 @@
+import { Pool, PoolOptions } from "mysql2";
+import { PoolConfig } from "pg";
+
 import { createMySQLDB } from "@/db/mysql/mysql.db";
 import { createSQLiteDB } from "@/db/sqlite/sqlite.db";
+import { createPostgresDB as createPostgresDB } from "@/db/postgres/postgres.db";
+import { createPostgresDB as createVercelPostgresDB } from "@/db/postgres-vercel/postgres.db";
+
 import { up as upSqlite } from "@/db/sqlite/sqlite.migration";
 import { up as upMysql } from "@/db/mysql/mysql.migration";
-import { createPool } from "mysql2";
+import { up as upVercelPostgres } from "@/db/postgres-vercel/postgres.migration";
+import { up as upPostgres } from "@/db/postgres/postgres.migration";
+import { DBInterface } from "@/db/interface";
 
+const envName = "DATABASE";
 async function SetUp() {
+  async function setupVercelPostGres() {
+    const db = createVercelPostgresDB();
+    await upVercelPostgres(db.adapter());
+    return db;
+  }
 
-/*
-in terminal
-docker run --name test --rm -e MYSQL_ROOT_PASSWORD=password -p 3307:3306 -d mysql:latest 
-create table Containers;
-const poolargs: Parameters<typeof createPool>[0] = {
-    user: "root",
-    password: "password",
-    host:"localhost",
-    database:"Containers",
-    port:3307
-};
-const db2 = createMySQLDB(poolargs);
-upMysql(db2.adapter());
-*/
+  async function setUpPostgres(args: PoolConfig) {
+    const db = createPostgresDB(args);
+    await upPostgres(db.adapter());
+    return db;
+  }
 
-  const db = createSQLiteDB("sqlite.db");
+  async function setupSqlite() {
+    const db = createSQLiteDB("sqlite.db");
+    await upSqlite(db.adapter());
+    return db;
+  }
 
+  async function setupMySQL(args: PoolOptions) {
+    const db = createMySQLDB(args);
+    await upSqlite(db.adapter());
+    return db;
+  }
+
+  let db: DBInterface | undefined = undefined;
+
+  const dbName = process.env[envName];
+
+  switch (dbName) {
+    case "sqlite":
+      db = await setupSqlite();
+      break;
+    case "postgres-vercel":
+      db = await setupVercelPostGres();
+      break;
+    case "planetscale":
+      //TODO
+      throw Error("planetscale is not yet implemented");
+  }
+
+  if (db === undefined) {
+    throw Error(`
+    environment variable ${envName} is not set to a valid string.
+    Options are ${["sqlite", "postgres-vercel", "planetscale"].join(",")}.`);
+  }
 
   return db;
 }

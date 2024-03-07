@@ -1,7 +1,7 @@
-import {createPool} from 'mysql2';; // do not use 'mysql2/promises'!
+import {PoolOptions, createPool} from 'mysql2';; // do not use 'mysql2/promises'!
 import { Kysely, MysqlDialect } from "kysely";
 import { Schema } from "../schema";
-import { DBInterface } from "../interface";
+import { DBInterface, totalCostKey } from "../interface";
 import { addToTotalCost, decreaseToken, getImageData, getImageIds, getImageProperties, getNumberOfTokens, getTotalCost, getUserId, removeImage, saveImage, setTokens, totalNumberOfImages } from '../base-implementation';
 
 
@@ -10,11 +10,10 @@ export type TExtra = {
 };
 
 export  function createMySQLDB(
-  args: Parameters<typeof createPool>[0]
+  args: PoolOptions
 ): DBInterface & TExtra {
   
   const db = createPool(args);
-  const totalCostKey = "totalCost";
   const adapter = new Kysely<Schema>({
     dialect:new MysqlDialect({ pool: db})
   });

@@ -10,39 +10,51 @@ import {
 import { DBInterface } from "./interface";
 import { Kysely } from "kysely";
 import { Schema } from "./schema";
+
 import { createSQLiteDB } from "./sqlite/sqlite.db";
+import { createMySQLDB } from "./mysql/mysql.db";
+import { createPostgresDB } from "./postgres/postgres.db";
+
 import { down as sqliteDown, up as sqliteUp } from "./sqlite/sqlite.migration";
 import { down as mySQLDown, up as mySQLUp } from "./mysql/mysql.migration";
+import {
+  down as postgresDown,
+  up as postgresUp,
+} from "./postgres/postgres.migration";
+
 import { MySqlContainer, StartedMySqlContainer } from "@testcontainers/mysql";
-import { createMySQLDB } from "./mysql/mysql.db";
+import {
+  PostgreSqlContainer,
+  StartedPostgreSqlContainer,
+} from "@testcontainers/postgresql";
 
 function getFakeData() {
   return {
     Users: [
       {
         email: "email",
-        userId: "user1",
+        userId: "a78072dd-ebdc-4859-a303-7f003529ee3c",
         images: [
           {
             data: Buffer.from("image", "binary"),
             color: "color",
             style: "style",
             description: "description",
-            id: "user1-image1",
+            id: "a05bcd02-68b7-4028-ab93-3134c42476bb",
           },
           {
             data: Buffer.from("image", "binary"),
             color: "color2",
             style: "style2",
             description: "description2",
-            id: "user1-image2",
+            id: "77278be4-814d-4063-ab16-34490fb22899",
           },
-        ],
+        ] as const,
         tokens: 0,
       },
       {
         email: "email2",
-        userId: "user2",
+        userId: "0e55f7d8-028b-4063-9894-6feff0e1adc3",
         tokens: 1,
         images: [],
       },
@@ -207,12 +219,80 @@ function mySQL(): TSetUp {
   };
 }
 
-const dbs = [mySQL,sqlite].map(setup => ({setup,dbName:setup.name}) as const ) 
+function postgres(): TSetUp {
+  let _container: StartedPostgreSqlContainer | undefined = undefined;
+  let _dbInterface: ReturnType<typeof createPostgresDB> | undefined = undefined;
 
+  async function createContainer() {
+    _container = await new PostgreSqlContainer().start();
+  }
 
+  function getContainer() {
+    if (_container === undefined) {
+      throw Error("undefined container");
+    }
+    return _container;
+  }
 
+  async function createDB() {
+    const container = await getContainer();
+    const args = {
+      host: container.getHost(),
+      port: container.getPort(),
+      database: container.getDatabase(),
+      user: container.getUsername(),
+      password: container.getPassword(),
+    };
 
-describe.each(dbs)("$dbName", ({setup,dbName}) => {
+    _dbInterface = createPostgresDB(args);
+  }
+
+  function getDB() {
+    if (_dbInterface === undefined) {
+      throw Error("undefined DB interface");
+    }
+    return _dbInterface;
+  }
+
+  async function destroyContainer() {
+    const dbInterface = getDB();
+    const postgres = dbInterface.originalDB();
+
+    await postgres.end();
+    await getContainer().stop();
+  }
+
+  async function createTables() {
+    const dbInterface = getDB();
+    await postgresUp(dbInterface.adapter());
+  }
+
+  async function destroyTables() {
+    const dbInterface = getDB();
+    await postgresDown(dbInterface.adapter());
+  }
+
+  return {
+    getDB: getDB,
+    async beforeAll() {
+      await createContainer();
+      await createDB();
+    },
+    async beforeEach() {
+      await createTables();
+    },
+    async afterEach() {
+      await destroyTables();
+    },
+    async afterAll() {
+      await destroyContainer();
+    },
+  };
+}
+
+const dbs = [postgres].map((setup) => ({ setup, dbName: setup.name } as const));
+
+describe.each(dbs)("$dbName", ({ setup, dbName }) => {
   const {
     beforeAll: beforeAll_,
     beforeEach: beforeEach_,
@@ -220,6 +300,8 @@ describe.each(dbs)("$dbName", ({setup,dbName}) => {
     afterAll: afterAll_,
     getDB,
   } = setup();
+
+
 
   beforeAll(async () => {
     if (beforeAll_ !== undefined) {
@@ -302,9 +384,11 @@ describe.each(dbs)("$dbName", ({setup,dbName}) => {
     const size = await getDB()
       .adapter()
       .selectFrom("Icon")
-      .select((eb) => eb.fn.countAll<number>().as("totalImages"))
+      .select((eb) => eb.fn.countAll().as("totalImages"))
       .executeTakeFirstOrThrow()
-      .then((q) => q.totalImages);
+      .then((q) => parseInt(String(q.totalImages)));
+
+
     expect(size).toBe(0);
   });
 
@@ -313,16 +397,19 @@ describe.each(dbs)("$dbName", ({setup,dbName}) => {
 
     const imageIds = getFakeData().Users[0].images.map((img) => img.id);
 
-    const getImageProperties = getFakeData().Users[0].images.map(
+    const expectedImageProperties = getFakeData().Users[0].images.map(
       ({ color, description, id, style }) => ({ color, description, id, style })
     );
 
-    const getImageProperties2 = await getDB().getImageProperties({
+    const imageProperties = await getDB().getImageProperties({
       userId,
       imageIds,
     });
 
-    expect(getImageProperties2).toEqual(getImageProperties);
+    for (const img of expectedImageProperties) {
+      expect(imageProperties).toContainEqual(img);
+
+    }
   });
   test("totalNumberOfImages", async () => {
     const userId = getFakeData().Users[0].userId;

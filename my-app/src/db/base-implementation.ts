@@ -146,7 +146,7 @@ export async function totalNumberOfImages(
 
   const result = await kysely
     .selectFrom("Icon")
-    .select((eb) => eb.fn.countAll<number>().as("num_images"))
+    .select((eb) => eb.fn.countAll().as("num_images"))
     .where((eb) => {
       let conditions = [];
 
@@ -166,7 +166,7 @@ export async function totalNumberOfImages(
     })
     .executeTakeFirstOrThrow();
 
-  return result.num_images;
+  return parseInt(String(result.num_images));
 }
 
 export async function getTotalCost(kysely: Kysely<Schema>, totalCostKey: string) {

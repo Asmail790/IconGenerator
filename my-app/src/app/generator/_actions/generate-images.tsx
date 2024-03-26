@@ -19,7 +19,7 @@ const argsSchema = z.object({
 
 const limiter = rateLimiter({
   interval: 60 * 1000, // 60 seconds
-  uniqueTokenPerInterval: 500, // Max 500 users per second
+  uniqueTokenPerInterval: 50, // Max 50 users per second
 });
 
 

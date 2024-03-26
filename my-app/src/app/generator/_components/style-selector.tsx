@@ -39,7 +39,7 @@ export default function StyleSelector(props: {
                 value={style}
                 id={`${style}-color`}
                 className={
-                  "h-24 w-24 rounded-sm data-[state=checked]:ring-gray-600 data-[state=checked]:ring-2 data-[state=checked]:scale-90 hover:scale-110 transition-transform bg-green-900"
+                  "h-24 w-24 rounded-sm  data-[state=checked]:ring-white data-[state=checked]:ring-2 data-[state=checked]:scale-90 transition-transform bg-green-900"
                 }
               ></RadioGroupItem>
               <p className="capitalize text-base text-cap text-center">

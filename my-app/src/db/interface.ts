@@ -1,4 +1,4 @@
-import { Kysely } from "kysely";
+import { IsolationLevel, Kysely } from "kysely";
 import { Schema } from "./schema";
 
 export type ImageProps = {
@@ -53,7 +53,16 @@ export type setTokens = (args: {
 }) => Promise<void>;
 export type addToTotalCost = (cost: number) => Promise<void>;
 
+export type deleteAccount = (userId: string) => Promise<void>;
+
 export const totalCostKey = "totalCost";
+
+
+export type transaction = <T>(args: {
+  transactionLambda: (db: DBInterface) => Promise<T>;
+  isolationLevel: IsolationLevel;
+}) => Promise<T>;
+
 
 export type DBInterface = {
   removeImage: removeImage;
@@ -68,5 +77,7 @@ export type DBInterface = {
   decreaseToken: decreaseToken;
   addToTotalCost: addToTotalCost;
   setTokens: setTokens;
-  adapter:()=>Kysely<Schema>
+  deleteAccount: deleteAccount;
+  transaction: transaction;
+  adapter: () => Kysely<Schema>;
 };

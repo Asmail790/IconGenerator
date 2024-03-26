@@ -17,12 +17,15 @@ import {
   saveImage,
   setTokens,
   totalNumberOfImages,
+  deleteAccount,
+  transaction,
 } from "../base-implementation";
 
 export type TExtra = {
   originalDB: () => Sqlite3Database;
 };
-export function createSQLiteDB(url: string): DBInterface & TExtra {
+
+export function createSQLiteDBSimple(url: string): DBInterface & TExtra {
   const db = new Database(url);
   db.function("uuid", () => uuidv4());
 
@@ -32,10 +35,25 @@ export function createSQLiteDB(url: string): DBInterface & TExtra {
     }),
   });
 
+  const dbinterface = createSQLiteDB(adapter);
   return {
+    ...dbinterface,
     originalDB() {
       return db;
     },
+  };
+}
+export function createSQLiteDB(adapter: Kysely<Schema>): DBInterface {
+  // const db = new Database(url);
+  // db.function("uuid", () => uuidv4());
+
+  // const adapter = new Kysely<Schema>({
+  //   dialect: new SqliteDialect({
+  //     database: db,
+  //   }),
+  // });
+
+  return {
     adapter() {
       return adapter;
     },
@@ -52,5 +70,12 @@ export function createSQLiteDB(url: string): DBInterface & TExtra {
     getImageIds: async (args) => getImageIds(adapter, args),
     getImageProperties: async (args) => getImageProperties(adapter, args),
     totalNumberOfImages: (args) => totalNumberOfImages(adapter, args),
+    deleteAccount: (args) => deleteAccount(adapter, args),
+    transaction: ({ isolationLevel, transactionLambda }) =>
+      transaction(adapter, {
+        dbConstructor: createSQLiteDB,
+        isolationLevel,
+        transactionLambda,
+      }),
   };
 }

@@ -1,8 +1,8 @@
 export const styles = [
   "metallic",
-  "polygon",
+  "polygonic",
   "pixelated",
-  "clay",
+  "clayey",
   "gradient",
   "flat",
   "illustrated",

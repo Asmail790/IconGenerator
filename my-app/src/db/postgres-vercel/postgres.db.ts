@@ -4,6 +4,7 @@ import { DBInterface, totalCostKey } from "../interface";
 import {
   addToTotalCost,
   decreaseToken,
+  deleteAccount,
   getImageData,
   getImageIds,
   getImageProperties,
@@ -14,15 +15,20 @@ import {
   saveImage,
   setTokens,
   totalNumberOfImages,
+  transaction,
 } from "../base-implementation";
-import { createKysely } from '@vercel/postgres-kysely';
+import { createKysely } from "@vercel/postgres-kysely";
 
 
-export function createPostgresDB():DBInterface{
+export function createPostgresDBSimple():DBInterface{
   const adapter = createKysely<Schema>();
+  const dbInterface = createPostgresDB(adapter)
 
+  return dbInterface
 
+}
 
+export function createPostgresDB(adapter: Kysely<Schema>): DBInterface {
   return {
     adapter() {
       return adapter;
@@ -40,5 +46,12 @@ export function createPostgresDB():DBInterface{
     getImageIds: async (args) => getImageIds(adapter, args),
     getImageProperties: async (args) => getImageProperties(adapter, args),
     totalNumberOfImages: (args) => totalNumberOfImages(adapter, args),
+    deleteAccount: (args) => deleteAccount(adapter, args),
+    transaction: ({ isolationLevel, transactionLambda }) =>
+      transaction(adapter, {
+        dbConstructor: createPostgresDB,
+        isolationLevel,
+        transactionLambda,
+      }),
   };
 }

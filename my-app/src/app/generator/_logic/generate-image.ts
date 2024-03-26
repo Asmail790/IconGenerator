@@ -22,7 +22,7 @@ type TGenerateUnsuccessful = {
 
 export type TGenerateState = (TGenerateSuccessful | TGenerateUnsuccessful) 
 
-type DBUtils = Pick<DBInterface,"decreaseToken"|"getNumberOfTokens">
+type DBUtils = Pick<DBInterface,"decreaseToken"|"getNumberOfTokens"|"addToTotalCost"|"getTotalCost">
 async function generateImage(args: {
   style: string;
   color: string;
@@ -34,11 +34,36 @@ async function generateImage(args: {
   costCalculator: ImageCostCalculator;
   totalCostLimit: number;
 }): Promise<TGenerateState> {
-  const { style, color, description, numberOfImages,userId, generator } = args;
+  const { style, color, description, numberOfImages,userId, generator,costCalculator } = args;
   const db = await args.db
 
-  const prompt = `Generate an ${style} icon with primary color of "${color}" and that represents "${description}."`;
+
+  const cost = await db.getTotalCost()
+  if ( totalCostLimit<= cost){
+    return {isSuccess:false,message:"Request have been denied due to budget constraint."}
+  }
+  
+  
+  const userTokens = await db.getNumberOfTokens(userId)
+  console.log(userTokens)
+  if  ( userTokens  == 0 ){
+    return {isSuccess:false,message:"You have no image tokens left."}
+  }
+  const ImageTokensLeft = userTokens - numberOfImages
+  
+  if  ( ImageTokensLeft < 0 ){
+    return {isSuccess:false,message:`You are short of ${numberOfImages-userTokens} image tokens.`}
+  }
+
+  const prompt = `Generate an icon styled as ${style}, with primary color of "${color}" and that fit following description:"${description}."`;
+
   const imageUrls = await generator({ numberOfImages, prompt });
+
+  const imageCost = costCalculator(numberOfImages)
+  
+  await db.decreaseToken({userId,tokensSpend:numberOfImages})
+  await db.addToTotalCost(imageCost)
+  
   const images = await Promise.all(imageUrls.map( async url => {
     const response = await fetch(url)
     const blob = await response.blob()
@@ -50,8 +75,6 @@ async function generateImage(args: {
   }))
   
   
-  await db.decreaseToken({userId,tokensSpend:numberOfImages})
-  const ImageTokensLeft = await db.getNumberOfTokens(userId)
   return {
     ImageTokensLeft,
     isSuccess: true,

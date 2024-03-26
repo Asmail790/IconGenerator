@@ -1,6 +1,7 @@
 "use client";
 import { URLtoImageID } from "@/app/api/image/[imageID]/_logic/url-converter";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { ReactElement, ReactNode } from "react";
 import {
   Card,
   CardContent,
@@ -34,7 +35,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Tooltip,
   TooltipContent,
@@ -46,7 +56,6 @@ import { link } from "fs";
 import { Delete, Download, Info, Trash } from "lucide-react";
 import Image from "next/image";
 import { Component, PropsWithChildren, useState } from "react";
-import { useMediaQuery } from "react-responsive";
 
 type TItem = {
   description: string;
@@ -59,10 +68,13 @@ export function Item(itemProp: TItem) {
   const { description, imageUrl, color, style, deleteFunc } = itemProp;
   const imageId = URLtoImageID(imageUrl);
 
+  const completeUrl = "https://icon-generator-seven.vercel.app" + imageUrl;
+  console.log(completeUrl);
+
   return (
     <Card className="w-52 flex flex-col justify-between">
       <CardContent className="px-0 flex flex-row justify-center">
-        <Image alt={description} width={256} height={256} src={imageUrl} />
+        <img alt={description} width={256} height={256} src={imageUrl} />
       </CardContent>
       <CardHeader className="pt-0">
         <CardDescription className="px-0 line-clamp-3">
@@ -125,8 +137,90 @@ function ResponsiveDialog(
 ) {
   const { description, color, style } = props;
 
-  const info =( <Table>
-    <TableBody>
+  const info = (
+    <ImageTableInfo description={description} color={color} style={style} />
+  );
+  const title = <p>{"Details"}</p>;
+
+  //Todo use tailwind breakpoints direclty
+  const button = (
+    <Button variant="outline" size="icon">
+      <Info  className="h-4 w-4" />
+    </Button>
+  );
+
+  return (
+    <>
+      <div className="hidden md:block">
+        <ImageInfoDrawer button={button} info={info} title={title} />
+      </div>
+      <div className="block md:hidden">
+        <ImageInfoDialog button={button} info={info} title={title} />
+      </div>
+    </>
+  );
+}
+
+function ImageInfoDialog(props: {
+  info: ReactNode;
+  title: ReactNode;
+  button: ReactNode;
+}) {
+  const [openDialog, setOpenDialog] = useState(false);
+
+  return (
+    <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+      <DialogTrigger asChild>{props.button}</DialogTrigger>
+      <DialogContent className="sm:max-w-[625px]">
+        <DialogHeader>
+          <DialogTitle>{props.title}</DialogTitle>
+          <DialogDescription>{props.info}</DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button type="button" variant="secondary">
+              Close
+            </Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ImageInfoDrawer(props: {
+  info: ReactNode;
+  title: ReactNode;
+  button: ReactNode;
+}) {
+  const [openDrawer, setOpenDrawer] = useState(false);
+  return (
+    <Drawer open={openDrawer} onOpenChange={setOpenDrawer}>
+      <DrawerTrigger asChild>{props.button}</DrawerTrigger>
+      <DrawerContent>
+        <DrawerHeader className="text-left">
+          <DrawerTitle>{props.title}</DrawerTitle>
+          <DrawerDescription>{props.info}</DrawerDescription>
+        </DrawerHeader>
+        <DrawerFooter className="pt-2">
+          <DrawerClose asChild>
+            <Button variant="outline">Close</Button>
+          </DrawerClose>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
+  );
+}
+
+function ImageTableInfo(props: {
+  description: string;
+  color: string;
+  style: string;
+}) {
+  const { description, color, style } = props;
+  return (
+    <Table>
+      <TableBody>
         <TableRow>
           <TableCell className="font-bold">Description</TableCell>
           <TableCell>{description}</TableCell>
@@ -139,50 +233,7 @@ function ResponsiveDialog(
           <TableCell className="font-bold">Style</TableCell>
           <TableCell>{style}</TableCell>
         </TableRow>
-    
-    </TableBody>
-  </Table>)
-  const title =<p>{"Details"}</p>;
-
-  //Todo use tailwind breakpoints direclty
-  const isDesktop = useMediaQuery({ query: "(max-width: 768px)" });
-  const [open, setOpen] = useState(false);
-
-  if (!isDesktop) {
-    return (
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>{props.children}</DialogTrigger>
-        <DialogContent className="sm:max-w-[625px]">
-          <DialogHeader>
-            <DialogTitle>{title}</DialogTitle>
-            <DialogDescription>{info}</DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button type="button" variant="secondary">
-                Close
-              </Button>
-            </DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  return (
-    <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>{props.children}</DrawerTrigger>
-      <DrawerContent>
-        <DrawerHeader className="text-left">
-          <DrawerTitle>{title}</DrawerTitle>
-          <DrawerDescription>{info}</DrawerDescription>
-        </DrawerHeader>
-        <DrawerFooter className="pt-2">
-          <DrawerClose asChild>
-            <Button variant="outline">Close</Button>
-          </DrawerClose>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+      </TableBody>
+    </Table>
   );
 }

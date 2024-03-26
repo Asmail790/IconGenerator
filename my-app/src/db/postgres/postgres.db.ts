@@ -5,6 +5,7 @@ import { DBInterface, totalCostKey } from "../interface";
 import {
   addToTotalCost,
   decreaseToken,
+  deleteAccount,
   getImageData,
   getImageIds,
   getImageProperties,
@@ -15,25 +16,36 @@ import {
   saveImage,
   setTokens,
   totalNumberOfImages,
+  transaction,
 } from "../base-implementation";
-
 
 export type TExtra = {
   originalDB: () => Pool;
 };
 
-export function createPostgresDB(
-  args:PoolConfig
-): DBInterface & TExtra {
+
+
+export function createPostgresDBSimple(args:PoolConfig):DBInterface & TExtra{
   const db = new Pool(args);
   const adapter = new Kysely<Schema>({
     dialect: new PostgresDialect({ pool: db }),
   });
 
+  const dbInterface=createPostgresDB(adapter)
+
   return {
+    ...dbInterface,
     originalDB() {
       return db;
     },
+  }
+
+}
+
+
+export function createPostgresDB(adapter: Kysely<Schema>): DBInterface {
+
+  return {
     adapter() {
       return adapter;
     },
@@ -50,5 +62,12 @@ export function createPostgresDB(
     getImageIds: async (args) => getImageIds(adapter, args),
     getImageProperties: async (args) => getImageProperties(adapter, args),
     totalNumberOfImages: (args) => totalNumberOfImages(adapter, args),
+    deleteAccount: (args) => deleteAccount(adapter, args),
+    transaction: ({ isolationLevel, transactionLambda }) =>
+      transaction(adapter, {
+        dbConstructor: createPostgresDB,
+        isolationLevel,
+        transactionLambda,
+      }),
   };
 }

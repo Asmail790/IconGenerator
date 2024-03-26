@@ -7,13 +7,13 @@ import {
   afterEach,
   beforeEach,
 } from "vitest";
-import { DBInterface } from "./interface";
-import { Kysely } from "kysely";
+import { DBInterface, totalCostKey } from "./interface";
+import { Kysely, sql } from "kysely";
 import { Schema } from "./schema";
 
-import { createSQLiteDB } from "./sqlite/sqlite.db";
-import { createMySQLDB } from "./mysql/mysql.db";
-import { createPostgresDB } from "./postgres/postgres.db";
+import { createSQLiteDBSimple as  createSQLiteDB} from "./sqlite/sqlite.db";
+import { createMySQLDBSimple as createMySQLDB } from "./mysql/mysql.db";
+import { createPostgresDBSimple as createPostgresDB  } from "./postgres/postgres.db";
 
 import { down as sqliteDown, up as sqliteUp } from "./sqlite/sqlite.migration";
 import { down as mySQLDown, up as mySQLUp } from "./mysql/mysql.migration";
@@ -290,7 +290,7 @@ function postgres(): TSetUp {
   };
 }
 
-const dbs = [postgres].map((setup) => ({ setup, dbName: setup.name } as const));
+const dbs = [mySQL,postgres,sqlite].map((setup) => ({ setup, dbName: setup.name } as const));
 
 describe.each(dbs)("$dbName", ({ setup, dbName }) => {
   const {
@@ -470,4 +470,74 @@ describe.each(dbs)("$dbName", ({ setup, dbName }) => {
       const tokens = await getDB().getNumberOfTokens(user.userId);
       expect(tokens).toBe(user.tokens);
     });
+
+    test("deleteAccount",async ()=>{
+
+      const users = getFakeData().Users;
+      await getDB().deleteAccount(users[0].userId)
+      await getDB().deleteAccount(users[1].userId)
+
+      const numberOfUsers = await getDB()
+      .adapter()
+      .selectFrom("User")
+      .select((eb) => eb.fn.countAll().as("users"))
+      .executeTakeFirstOrThrow()
+      .then((query) => parseInt(String(query.users)));
+
+      expect(numberOfUsers).toBe(0)
+
+ 
+      const numberOfImages = await getDB().adapter()
+      .selectFrom("Icon")
+      .select((eb) => eb.fn.countAll().as("icons"))
+      .executeTakeFirstOrThrow()
+      .then((query) => parseInt(String(query.icons)));
+      
+      expect(numberOfImages).toBe(0)
+
+      const numberOfTokens = await getDB().adapter()
+      .selectFrom("ImageToken")
+      .select((eb) => eb.fn.countAll().as("tokens"))
+      .executeTakeFirstOrThrow()
+      .then((query) => parseInt(String(query.tokens)));
+      
+      expect(numberOfTokens).toBe(0)
+    })
+
+    // test("x",async()=>{
+
+
+    //   await getDB().addToTotalCost(30)
+    //   await getDB().setTokens({userId:getFakeData().Users[0].userId,numberOfTokens:100})
+    //   const f = await getDB().adapter()
+    //   .selectNoFrom((eb) =>
+    //     eb
+    //       .and([
+    //         eb(
+    //           eb
+    //             .selectFrom("ImageToken")
+    //             .select("ImageToken.tokens")
+    //             .where("ImageToken.userId", "=", getFakeData().Users[0].userId)
+    //             .limit(1),
+    //           ">=",
+    //           70
+    //         ),
+    //         eb(
+    //           sql<number>`CAST(${eb
+    //             .selectFrom("OtherProperties")
+    //             .select("OtherProperties.value")
+    //             .where("OtherProperties.property", "=", totalCostKey)
+    //             .limit(1)} AS SIGNED INTEGER)`,
+    //           ">=",
+    //           20
+    //         ),
+    //       ])
+    //       .as("result")
+    //   ).execute()
+
+    // })
+
+
+
+
 });

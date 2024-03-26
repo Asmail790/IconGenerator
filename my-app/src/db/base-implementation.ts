@@ -1,15 +1,42 @@
-import { ExpressionBuilder, Kysely } from "kysely";
+import { ExpressionBuilder, IsolationLevel, Kysely } from "kysely";
 import { Schema } from "./schema";
 import {
-  decreaseToken,
-  getImageData,
-  getImageIds,
-  getImageProperties,
-  removeImage,
-  saveImage,
-  setTokens,
-  totalNumberOfImages,
+  DBInterface,
+  decreaseToken as TDecreaseToken,
+  getImageData as TGetImageData,
+  getImageIds as TGetImageIds,
+  getImageProperties as TGetImageProperties,
+  removeImage as TRemoveImage,
+  saveImage as TSaveImage,
+  setTokens as TSetTokens,
+  totalNumberOfImages as TTotalNumberOfImages,
+  totalCostKey,
 } from "./interface";
+
+// https://stackoverflow.com/questions/4034976/difference-between-read-commited-and-repeatable-read-in-sql-server
+/*
+
+
+    Read committed is an isolation level that guarantees that any data read was committed at the moment is read. It simply restricts the reader from seeing any intermediate, uncommitted, 'dirty' read. It makes no promise whatsoever that if the transaction re-issues the read, will find the Same data, data is free to change after it was read.
+
+    Repeatable read is a higher isolation level, that in addition to the guarantees of the read committed level, it also guarantees that any data read cannot change, if the transaction reads the same data again, it will find the previously read data in place, unchanged, and available to read.
+
+    The next isolation level, serializable, makes an even stronger guarantee: in addition to everything repeatable read guarantees, it also guarantees that no new data can be seen by a subsequent read.
+
+    Say you have a table T with a column C with one row in it, say it has the value '1'. And consider you have a simple task like the following:
+
+    BEGIN TRANSACTION;
+    SELECT * FROM T;
+    WAITFOR DELAY '00:01:00'
+    SELECT * FROM T;
+    COMMIT;
+
+    That is a simple task that issue two reads from table T, with a delay of 1 minute between them.
+    under READ COMMITTED, the second SELECT may return any data. A concurrent transaction may update the record, delete it, insert new records. The second select will always see the new data.
+    under REPEATABLE READ the second SELECT is guaranteed to display at least the rows that were returned from the first SELECT unchanged. New rows may be added by a concurrent transaction in that one minute, but the existing rows cannot be deleted nor changed.
+    under SERIALIZABLE reads the second select is guaranteed to see exactly the same rows as the first. No row can change, nor deleted, nor new rows could be inserted by a concurrent transaction.
+
+*/
 
 export function searchWords(
   description: string,
@@ -27,6 +54,8 @@ export async function addToTotalCost(
   totalCostKey: string,
   cost: number
 ) {
+  // isolation level set to "serializable" since we only have one row.
+
   const [item] = await kysely
     .selectFrom("OtherProperties")
     .select("value")
@@ -34,7 +63,7 @@ export async function addToTotalCost(
     .limit(1)
     .execute();
 
-  // TODO excute one query only and make transaction
+  // TODO execute one query only and make transaction
   const firstTime = item === undefined;
   if (firstTime) {
     await kysely
@@ -73,7 +102,7 @@ export async function getUserId(kysely: Kysely<Schema>, email: string) {
 
 export async function saveImage(
   kysely: Kysely<Schema>,
-  args: Parameters<saveImage>[0]
+  args: Parameters<TSaveImage>[0]
 ) {
   const { color, style, userId, data, description } = args;
   await kysely
@@ -90,7 +119,7 @@ export async function saveImage(
 
 export async function getImageData(
   kysely: Kysely<Schema>,
-  args: Parameters<getImageData>[0]
+  args: Parameters<TGetImageData>[0]
 ) {
   const { imageId, userId } = args;
   const arrayBuffer = await kysely
@@ -105,7 +134,7 @@ export async function getImageData(
 
 export async function removeImage(
   kysely: Kysely<Schema>,
-  args: Parameters<removeImage>[0]
+  args: Parameters<TRemoveImage>[0]
 ) {
   const { imageId, userId } = args;
   await kysely
@@ -118,12 +147,12 @@ export async function removeImage(
 
 export async function getImageProperties(
   kysely: Kysely<Schema>,
-  args: Parameters<getImageProperties>[0]
+  args: Parameters<TGetImageProperties>[0]
 ) {
   const { imageIds, userId } = args;
 
-  if (imageIds.length ===0){
-    return []
+  if (imageIds.length === 0) {
+    return [];
   }
 
   const result = await kysely
@@ -134,13 +163,12 @@ export async function getImageProperties(
     )
     .execute();
 
-
   return result;
 }
 
 export async function totalNumberOfImages(
   kysely: Kysely<Schema>,
-  args: Parameters<totalNumberOfImages>[0]
+  args: Parameters<TTotalNumberOfImages>[0]
 ) {
   const { userId, color, description, style } = args;
 
@@ -169,9 +197,10 @@ export async function totalNumberOfImages(
   return parseInt(String(result.num_images));
 }
 
-export async function getTotalCost(kysely: Kysely<Schema>, totalCostKey: string) {
-  // make it a SQL function
-  // instead of application code
+export async function getTotalCost(
+  kysely: Kysely<Schema>,
+  totalCostKey: string
+) {
   const result = await kysely
     .selectFrom("OtherProperties")
     .select("value")
@@ -187,7 +216,7 @@ export async function getTotalCost(kysely: Kysely<Schema>, totalCostKey: string)
 
 export async function setTokens(
   kysely: Kysely<Schema>,
-  args: Parameters<setTokens>[0]
+  args: Parameters<TSetTokens>[0]
 ) {
   const { numberOfTokens, userId } = args;
 
@@ -220,9 +249,11 @@ export async function setTokens(
 
 export async function decreaseToken(
   kysely: Kysely<Schema>,
-  args: Parameters<decreaseToken>[0]
+  args: Parameters<TDecreaseToken>[0]
 ) {
   const { tokensSpend, userId } = args;
+
+  // isolation level set to "repeatable read" since we want the row to be read correctly.
   await kysely
     .updateTable("ImageToken")
     .set((eb) => ({
@@ -233,7 +264,12 @@ export async function decreaseToken(
     .execute();
 }
 
-export async function getNumberOfTokens(kysely: Kysely<Schema>, userId: string) {
+export async function getNumberOfTokens(
+  kysely: Kysely<Schema>,
+  userId: string
+) {
+  // isolation level set to "repeatable read" since we want the row to be read correctly.
+
   return await kysely
     .selectFrom("ImageToken")
     .select("tokens")
@@ -244,7 +280,7 @@ export async function getNumberOfTokens(kysely: Kysely<Schema>, userId: string) 
 
 export async function getImageIds(
   kysely: Kysely<Schema>,
-  args: Parameters<getImageIds>[0]
+  args: Parameters<TGetImageIds>[0]
 ) {
   const { userId, limit, offset, color, description, style } = args;
   const result = await kysely
@@ -274,4 +310,30 @@ export async function getImageIds(
     .then((q) => q.map((item) => item.id));
 
   return result;
+}
+
+export async function deleteAccount(kysely: Kysely<Schema>, userId: string) {
+  await kysely.deleteFrom("User").where("User.id", "=", userId).execute();
+}
+
+export async function transaction<X>(
+  adapter: Kysely<Schema>,
+  args: {
+    transactionLambda: (db: DBInterface) => Promise<X>;
+    isolationLevel: IsolationLevel;
+    dbConstructor: (adapter: Kysely<Schema>) => DBInterface;
+  }
+) {
+  const {
+    isolationLevel: isolationLevel,
+    transactionLambda,
+    dbConstructor,
+  } = args;
+  return await adapter
+    .transaction()
+    .setIsolationLevel(isolationLevel)
+    .execute(async (trx) => {
+      const db = dbConstructor(trx);
+      return await transactionLambda(db);
+    });
 }

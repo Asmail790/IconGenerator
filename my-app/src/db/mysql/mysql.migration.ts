@@ -39,7 +39,7 @@ export async function up(db: Kysely<Schema>): Promise<void> {
       col.primaryKey().defaultTo(sql`(uuid())`)
     )
     .addColumn("userId", varchar256, (col) =>
-      col.references("User.id").onDelete("cascade").notNull()
+      col.references("User.id").notNull()
     )
     .addColumn("type", "text", (col) => col.notNull())
     .addColumn("provider", "text", (col) => col.notNull())
@@ -51,6 +51,13 @@ export async function up(db: Kysely<Schema>): Promise<void> {
     .addColumn("scope", "text")
     .addColumn("id_token", "text")
     .addColumn("session_state", "text")
+    .addForeignKeyConstraint(
+      "userId_foreign_Account",
+      ["userId"],
+      "User",
+      ["id"],
+      (cb) => cb.onDelete("cascade")
+    )
     .execute();
 
   await db.schema
@@ -58,11 +65,16 @@ export async function up(db: Kysely<Schema>): Promise<void> {
     .addColumn("id", varchar256, (col) =>
       col.primaryKey().defaultTo(sql`(uuid())`)
     )
-    .addColumn("userId", varchar256, (col) =>
-      col.references("User.id").onDelete("cascade").notNull()
-    )
+    .addColumn("userId", varchar256, (col) => col.notNull())
     .addColumn("sessionToken", varchar256, (col) => col.notNull().unique())
     .addColumn("expires", "text", (col) => col.notNull())
+    .addForeignKeyConstraint(
+      "userId_foreign_Session",
+      ["userId"],
+      "User",
+      ["id"],
+      (cb) => cb.onDelete("cascade")
+    )
     .execute();
 
   await db.schema
@@ -87,9 +99,7 @@ export async function up(db: Kysely<Schema>): Promise<void> {
   await db.schema
     .createTable("Icon")
     .ifNotExists()
-    .addColumn("userId", varchar256, (col) =>
-      col.references("User.id").onDelete("cascade").notNull()
-    )
+    .addColumn("userId", varchar256, (col) => col.notNull())
     .addColumn("data", "blob", (col) => col.notNull())
     .addColumn("color", "text", (col) => col.notNull())
     .addColumn("style", "text", (col) => col.notNull())
@@ -97,15 +107,27 @@ export async function up(db: Kysely<Schema>): Promise<void> {
     .addColumn("id", varchar256, (col) =>
       col.primaryKey().defaultTo(sql`(uuid())`)
     )
+    .addForeignKeyConstraint(
+      "userId_foreign_Icon",
+      ["userId"],
+      "User",
+      ["id"],
+      (cb) => cb.onDelete("cascade")
+    )
     .execute();
 
   await db.schema
     .createTable("ImageToken")
     .ifNotExists()
-    .addColumn("userId", varchar256, (col) =>
-      col.references("User.id").onDelete("cascade").notNull()
-    )
+    .addColumn("userId", varchar256, (col) => col.notNull())
     .addColumn("tokens", "integer", (col) => col.notNull())
+    .addForeignKeyConstraint(
+      "userId_foreign_ImageToken",
+      ["userId"],
+      "User",
+      ["id"],
+      (cb) => cb.onDelete("cascade")
+    )
     .execute();
 
   await db.schema
@@ -119,10 +141,10 @@ export async function up(db: Kysely<Schema>): Promise<void> {
 export async function down(db: Kysely<Schema>): Promise<void> {
   await db.schema.dropTable("Account").ifExists().execute();
   await db.schema.dropTable("Session").ifExists().execute();
-  await db.schema.dropTable("User").ifExists().execute();
   await db.schema.dropTable("VerificationToken").ifExists().execute();
 
   await db.schema.dropTable("Icon").ifExists().execute();
   await db.schema.dropTable("ImageToken").ifExists().execute();
   await db.schema.dropTable("OtherProperties").ifExists().execute();
+  await db.schema.dropTable("User").ifExists().execute();
 }

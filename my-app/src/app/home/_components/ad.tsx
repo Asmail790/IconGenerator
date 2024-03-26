@@ -1,9 +1,25 @@
 "use client";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { Loader2, LogIn } from "lucide-react";
+import { signIn, useSession } from "next-auth/react";
 export default function AD() {
+  const { status } = useSession();
+  const signButton =
+    status === "authenticated" ? null : status == "loading" ? (
+      <Loader2 className="animate-spin" />
+    ) : (
+      <Button
+        data-testid="sign-in-button"
+        onClick={() => signIn()}
+      >
+        <LogIn className="mr-2 h-4 w-4" />
+        Sign in
+      </Button>
+    );
+
   const images = [
     "0446bbc5-4b15-486b-8dda-732cccbef3e9.png",
     "14b5ce9c-132b-4a78-bff7-34466ff1291c.png",
@@ -38,15 +54,29 @@ export default function AD() {
       </p>
       <Link
         data-testid="generate-link"
-        className={cn("max-w-40 self-center",buttonVariants({ variant: "outline" }))}
+        className={cn(
+          "w-fit self-center",
+          buttonVariants({ variant: "outline" })
+        )}
         href="/generator"
       >
-        start generate icons
+        start generate icons now
       </Link>
 
+      <div className="self-center">
+        {signButton}
+      </div>
+
       <div className="w-full flex flex-row flex-wrap gap-8 m-2">
-        {images.map((url,i) => (
-          <Image key={i} src={url} height={128} width={128} alt="" />
+        {images.map((url, i) => (
+          <Image
+            className="w-16 md:w-32 aspect-square"
+            key={i}
+            src={url}
+            height={128}
+            width={128}
+            alt=""
+          />
         ))}
       </div>
     </div>

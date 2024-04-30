@@ -8,8 +8,8 @@ export function SubmitButton() {
   const status = useFormStatus();
   const spinner = (
     <>
-    {"generating images"}
-    <Loader2 className="animate-spin mr-2 h-4 w-4"/>
+    {"generating"}
+    <Loader2 className="animate-spin ml-2 h-4 w-4"/>
     </>
   );
   return (

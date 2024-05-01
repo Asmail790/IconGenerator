@@ -3,6 +3,7 @@ import GoogleProvider from "next-auth/providers/google";
 import { defaultCreateTokens as createTokens } from "../_logic/create-initial-user-tokens";
 import { promiseDB } from "@/global.config/db";
 import { KyselyAdapter } from "@auth/kysely-adapter"
+import { trustHost } from "@/global.config/trust-host";
 
 
 function getGoogleEnvs() {
@@ -33,7 +34,7 @@ function getSecret() {
 async function setUpNextAuth(){
   const config = {
     secret: getSecret(),
-    // trustHost:true,
+    trustHost:trustHost,
     adapter: KyselyAdapter( (await promiseDB).adapter() as any) as any,
     providers: [GoogleProvider(getGoogleEnvs())],
   

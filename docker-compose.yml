@@ -1,0 +1,11 @@
+services:
+  node:
+    image: "bitnami/node:latest"
+    command: sh -c 'npm install && npm run build && npm run start'
+    volumes:
+      - ./my-app:/app
+    ports:
+      - "3000:3000"
+    env_file:
+    - path: ${ENV_FILE_PATH}
+      required: true # default

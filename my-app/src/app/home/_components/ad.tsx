@@ -13,7 +13,7 @@ export default function AD() {
     ) : (
       <Button
         data-testid="sign-in-button"
-        onClick={() => signIn()}
+        onClick={() => signIn("google")}
       >
         <LogIn className="mr-2 h-4 w-4" />
         Sign in

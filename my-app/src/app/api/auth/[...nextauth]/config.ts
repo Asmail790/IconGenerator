@@ -34,7 +34,6 @@ function getSecret() {
 async function setUpNextAuth(){
   const config = {
     secret: getSecret(),
-    trustHost:trustHost,
     adapter: KyselyAdapter( (await promiseDB).adapter() as any) as any,
     providers: [GoogleProvider(getGoogleEnvs())],
   

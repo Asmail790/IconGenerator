@@ -2,9 +2,8 @@ import nextAuth, { NextAuthConfig } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { defaultCreateTokens as createTokens } from "../_logic/create-initial-user-tokens";
 import { promiseDB } from "@/global.config/db";
-import { KyselyAdapter } from "@auth/kysely-adapter"
+import { KyselyAdapter } from "@auth/kysely-adapter";
 import { trustHost } from "@/global.config/trust-host";
-
 
 function getGoogleEnvs() {
   if (process.env.GOOGLE_CLIENT_ID === undefined) {
@@ -29,14 +28,13 @@ function getSecret() {
   return process.env.AUTH_SECRET;
 }
 
-
-
-async function setUpNextAuth(){
+async function setUpNextAuth() {
   const config = {
     secret: getSecret(),
-    adapter: KyselyAdapter( (await promiseDB).adapter() as any) as any,
+    adapter: KyselyAdapter((await promiseDB).adapter() as any) as any,
     providers: [GoogleProvider(getGoogleEnvs())],
-  
+    trustHost,
+
     events: {
       async createUser(message) {
         const userId = message.user.id;
@@ -47,19 +45,19 @@ async function setUpNextAuth(){
       },
     },
   } satisfies NextAuthConfig;
-  
+
   // const { auth, handlers } = nextAuth(config);
   // const {GET,POST} = handlers
 
   // return {auth,GET,POST}
 
-  return nextAuth(config)
+  return nextAuth(config);
 }
 
-const nextAuthPromiseInstance = setUpNextAuth()
+const nextAuthPromiseInstance = setUpNextAuth();
 
 async function getUserEmail() {
-  const {auth} = await nextAuthPromiseInstance
+  const { auth } = await nextAuthPromiseInstance;
   const email = (await auth())?.user?.email ?? undefined;
 
   if (email === undefined) {
@@ -70,10 +68,9 @@ async function getUserEmail() {
 }
 
 async function isLoggedIn() {
-  const {auth} = await nextAuthPromiseInstance
-  const isLoggedIn = await auth() !== null;
-  return isLoggedIn
+  const { auth } = await nextAuthPromiseInstance;
+  const isLoggedIn = (await auth()) !== null;
+  return isLoggedIn;
 }
 
-
-export {  nextAuthPromiseInstance, getUserEmail,isLoggedIn };
+export { nextAuthPromiseInstance, getUserEmail, isLoggedIn };

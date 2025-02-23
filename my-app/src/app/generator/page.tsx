@@ -7,7 +7,6 @@ import { getUserEmail, isLoggedIn } from "../api/auth/[...nextauth]/config";
 import { userTokensGranted } from "@/global.config/userTokensGranted";
 
 
-
  async function getTokens(){
   const email = await getUserEmail()
   const userId = await getUserId(email)

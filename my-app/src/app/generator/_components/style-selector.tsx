@@ -36,7 +36,7 @@ export default function StyleSelector(props: {
       <RadioGroup
         data-testid="style-group"
         id="style-options"
-        value={"illustrated" satisfies TStyle}
+        defaultValue={"illustrated" satisfies TStyle}
         onValueChange={onValueChange}
       >
         <div className="flex flex-row flex-wrap gap-1 justify-center sm:justify-start">
@@ -44,8 +44,10 @@ export default function StyleSelector(props: {
             className="flex flex-col gap-2 items-center justify-center"
           >
             <RadioGroupItem
+            id="1"
               value={"illustrated" satisfies TStyle}
-              className={`h-24 w-24  bg-contain  rounded-sm bg-[url('/example/illustrated.jpeg')] data-[state=checked]:ring-white data-[state=checked]:ring-2 data-[state=checked]:scale-90 transition-transform bg-green-900`}
+              className={`h-24 w-24  bg-contain  rounded-sm bg-[url('/example/illustrated.jpeg')]
+                data-[state=checked]:border-8  border-purple-600  data-[state=checked]:scale-90 transition-transform bg-green-900`}
             />
             <p className="capitalize text-base text-cap text-center">{"illustrated" satisfies TStyle}</p>
           </div>
@@ -54,8 +56,9 @@ export default function StyleSelector(props: {
             className="flex flex-col gap-2 items-center justify-center"
           >
             <RadioGroupItem
+              id="2"
               value={"metallic" satisfies TStyle}
-              className={`h-24 w-24  bg-contain  rounded-sm bg-[url('/example/metallic.jpeg')] data-[state=checked]:ring-white data-[state=checked]:ring-2 data-[state=checked]:scale-90 transition-transform bg-green-900`}
+              className={`h-24 w-24  data-[state=checked]:border-8 bg-contain  rounded-sm bg-[url('/example/metallic.jpeg')] border-purple-600  data-[state=checked]:scale-90 transition-transform bg-green-900`}
             />
             <p className="capitalize text-base text-cap text-center">{"metallic" satisfies TStyle}</p>
           </div>
@@ -65,9 +68,9 @@ export default function StyleSelector(props: {
             className="flex flex-col gap-2 items-center justify-center"
           >
             <RadioGroupItem
+            id="3"
               value={"pixelated" satisfies TStyle}
-              id={`${style}-color`}
-              className={`h-24 w-24  bg-contain  rounded-sm bg-[url('/example/pixelated.jpeg')]  data-[state=checked]:ring-white data-[state=checked]:ring-2 data-[state=checked]:scale-90 transition-transform bg-green-900`}
+              className={`h-24 w-24  bg-contain  rounded-sm bg-[url('/example/pixelated.jpeg')]  data-[state=checked]:border-8  border-purple-600  data-[state=checked]:scale-90 transition-transform bg-green-900`}
             />
             <p className="capitalize text-base text-cap text-center">{"pixelated" satisfies TStyle}</p>
           </div>
@@ -77,8 +80,9 @@ export default function StyleSelector(props: {
             className="flex flex-col gap-2 items-center justify-center"
           >
             <RadioGroupItem
+            id="4"
               value={"polygonic" satisfies TStyle}
-              className={`h-24 w-24  bg-contain  rounded-sm bg-[url('/example/polygonic.jpeg')]  data-[state=checked]:ring-white data-[state=checked]:ring-2 data-[state=checked]:scale-90 transition-transform bg-green-900`}
+              className={`h-24 w-24  bg-contain  rounded-sm bg-[url('/example/polygonic.jpeg')] data-[state=checked]:border-8   border-purple-600  data-[state=checked]:scale-90 transition-transform bg-green-900`}
             />
             <p className="capitalize text-base text-cap text-center">{"polygonic" satisfies TStyle}</p>
           </div>
@@ -88,8 +92,9 @@ export default function StyleSelector(props: {
             className="flex flex-col gap-2 items-center justify-center"
           >
             <RadioGroupItem
+            id="5"
               value={"flat" satisfies TStyle}
-              className={`h-24 w-24  bg-contain  rounded-sm bg-[url('/example/flat.jpeg')]  data-[state=checked]:ring-white data-[state=checked]:ring-2 data-[state=checked]:scale-90 transition-transform bg-green-900`}
+              className={`h-24 w-24  bg-contain  rounded-sm bg-[url('/example/flat.jpeg')]  data-[state=checked]:border-8 border-purple-600   data-[state=checked]:scale-90 transition-transform bg-green-900`}
             />
             <p className="capitalize text-base text-cap text-center">{"flat" satisfies TStyle}</p>
           </div>

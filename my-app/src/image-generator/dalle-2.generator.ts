@@ -12,6 +12,7 @@ const generator: ImageGenerator = async (args) => {
     prompt,
     model: "dall-e-2",
     size: "256x256",
+    quality:"standard",
     n: numberOfImages,
     response_format: "url",
   };

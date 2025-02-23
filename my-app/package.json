@@ -13,6 +13,7 @@
     "test:watch": "vitest --watch"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^1.1.13",
     "@auth/drizzle-adapter": "^0.3.15",
     "@auth/kysely-adapter": "^0.5.0",
     "@hookform/resolvers": "^3.3.4",
@@ -31,6 +32,7 @@
     "@radix-ui/react-tooltip": "^1.0.7",
     "@types/uuid": "^9.0.8",
     "@vercel/postgres-kysely": "^0.7.2",
+    "ai": "^4.1.45",
     "better-sqlite3": "^10.1.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
@@ -43,10 +45,10 @@
     "lru-cache": "^10.2.0",
     "lucide-react": "^0.307.0",
     "mysql2": "^3.9.1",
-    "next": "^14.1.0",
+    "next": "14.2",
     "next-auth": "^5.0.0-beta.5",
     "next-themes": "^0.2.1",
-    "openai": "^4.26.0",
+    "openai": "^4.85.4",
     "pg": "^8.11.3",
     "react": "^18",
     "react-dom": "^18",

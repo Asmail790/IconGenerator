@@ -82,7 +82,7 @@ export default function ImageGeneratorForm(props: TGeneratorFormProps) {
 
   const [formErrors, setFormErrors] = useState<string[]>([]);
   const [tokens, setTokens] = useState(props.numberOfImageTokens);
-  const [images, setImages] = useState<{url:string,base64Img:string}[]>([]);
+  const [images, setImages] = useState<{url:string}[]>([]);
 
 
   const descriptionMaxLength = 200;

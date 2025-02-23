@@ -14,7 +14,7 @@ export function Images(props: {
   color: string;
   style: TStyle;
   description: string;
-  images: { url: string; base64Img: string }[];
+  images: { url: string; }[];
   saver: TSaveImage;
 }) {
   const style = props.style;
@@ -43,7 +43,6 @@ export function Images(props: {
 function ImageFrame(props: {
   image: {
     url: string;
-    base64Img: string;
   };
   style: string;
   color: string;
@@ -51,7 +50,7 @@ function ImageFrame(props: {
   saver: TSaveImage;
 }) {
   const {
-    image: { url, base64Img },
+    image: { url },
     style,
     color,
     description,
@@ -69,7 +68,8 @@ function ImageFrame(props: {
       </CardContent>
       <CardFooter className="px-4  flex flex-row mx-auto justify-between gap-4">
         <a
-          href={base64Img}
+        target="_blank"
+          href={url}
           download
           className={buttonVariants({ variant: "outline" })}
         >

@@ -12,7 +12,7 @@ import { TStyle } from "@/_constants/styles";
 
 type TGenerateSuccessful = {
   isSuccess: true;
-  images:{url:string,base64Img:string}[];
+  images:{url:string}[];
   ImageTokensLeft:number
 };
 
@@ -93,16 +93,7 @@ async function generateImage(args: {
   await db.decreaseToken({userId,tokensSpend:numberOfImages})
   await db.addToTotalCost(imageCost)
   
-  const images = await Promise.all(imageUrls.map( async url => {
-    const response = await fetch(url)
-    const blob = await response.blob()
-    const arrayBuffer = await blob.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
-    
-    const base64Img = `data:${blob.type};base64,${buffer.toString("base64")}`
-    return {base64Img,url}
-  }))
-  
+  const images = imageUrls.map(item => ({url:item}))
   
   return {
     ImageTokensLeft,

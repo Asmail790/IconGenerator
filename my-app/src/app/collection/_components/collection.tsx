@@ -67,7 +67,7 @@ export async function Collection(props: TProp) {
 
   return (
     <>
-      <div className="m-4 flex flex-row justify-center flex-wrap gap-8">
+      <div className="m-4 flex flex-row justify-center md:justify-start  flex-wrap gap-8">
         {images}
       </div>
       <Pagination args={{ style, description, lastPage, currentPage }} />

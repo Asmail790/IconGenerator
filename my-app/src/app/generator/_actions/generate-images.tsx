@@ -9,9 +9,12 @@ import rateLimiter from "@/lib/rate-limt";
 import { NextResponse } from "next/server";
 import { rateLimit } from "@/global.config/rate.limit";
 import { notFound, redirect } from "next/navigation";
+import { styles, styleValidator } from "@/_constants/styles";
+
+
 
 const argsSchema = z.object({
-  style: z.string(),
+  style: styleValidator,
   color: z.string(),
   description: z.string(),
   numberOfImages: z.number(),
@@ -25,6 +28,9 @@ const limiter = rateLimiter({
 
 
 export type TState = TGenerateState 
+
+
+
 export async function generateImages(
   invalidatedArgs:{style:string, color:string, description:string, numberOfImages:number}
 ): Promise<TState> {
@@ -39,6 +45,9 @@ export async function generateImages(
   }
 
   const { style, color, description, numberOfImages } = argsSchema.parse(invalidatedArgs);
+  
+  
+
   
   const email = await getUserEmail();
   const userId = await getUserId(email)

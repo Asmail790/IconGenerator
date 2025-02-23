@@ -172,38 +172,6 @@ export default function ImageGeneratorForm(props: TGeneratorFormProps) {
     }
   }
 
-  // function onColorChange(value: string) {
-  //   refWindow.current?.sessionStorage.setItem(
-  //     "color" satisfies TStorageKey,
-  //     String(value)
-  //   );
-  //   setColor(value);
-  // }
-
-  // function onNumberOfImagesChange(value: number) {
-  //   refWindow.current?.sessionStorage.setItem(
-  //     "numberOfImages" satisfies TStorageKey,
-  //     String(value)
-  //   );
-  //   setNumberOfImages(value);
-  // }
-
-  // function onStyleChange(value: TStyle) {
-  //   refWindow.current?.sessionStorage.setItem(
-  //     "style" satisfies TStorageKey,
-  //     String(value)
-  //   );
-  //   setStyle(value);
-  // }
-
-  // function onDescriptionChange(value: string) {
-  //   refWindow.current?.sessionStorage.setItem(
-  //     "description" satisfies TStorageKey,
-  //     String(value)
-  //   );
-  //   setDescription(value);
-  // }
-
   const formAlert =
     0 < formErrors.length ? (
       <AlertInfo title="form errors">

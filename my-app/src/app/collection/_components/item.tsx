@@ -72,9 +72,9 @@ export function Item(itemProp: TItem) {
   console.log(completeUrl);
 
   return (
-    <Card className="w-52 flex flex-col justify-between">
+    <Card className="w-52 flex flex-col justify-between h-fit">
       <CardContent className="px-0 flex flex-row justify-center">
-        <img alt={description} width={256} height={256} src={imageUrl} />
+        <Image alt={description} width={256} height={256} src={imageUrl} />
       </CardContent>
       <CardHeader className="pt-0">
         <CardDescription className="px-0 line-clamp-3">

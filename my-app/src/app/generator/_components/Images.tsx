@@ -23,7 +23,7 @@ export function Images(props: {
   const saver = props.saver;
   return (
     <>
-      <div className="max-w-2xl flex flex-row gap-5">
+      <div className="max-w-2xl flex flex-col sm:flex-row gap-5 flex-wrap justify-center">
         {props.images.map((image, i) => (
           <ImageFrame
             key={i}

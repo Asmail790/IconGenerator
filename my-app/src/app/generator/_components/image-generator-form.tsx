@@ -185,7 +185,7 @@ export default function ImageGeneratorForm(props: TGeneratorFormProps) {
   // Todo replace with shadc ui if can persist state between reloads.
   return (
     <div className="flex flex-col justify-center items-center">
-      <form className="flex flex-col max-w-2xl gap-4" action={action}>
+      <form className="flex flex-col max-w-2xl gap-4 px-2 sm:px-0" action={action}>
         <p className=" text-left capitalize">tokens left: {tokens}</p>
         <ColorSelector color={color} setColor={(x) => setColor(x)} />
         <StyleSelector style={style} setStyle={(x) => setStyle(x)} />

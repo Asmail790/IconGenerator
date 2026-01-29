@@ -15,7 +15,7 @@ export function SearchForm(props: {
 
   // TODO change style input to select tag
   return (
-    <form className="max-w-2xl mx-auto" action={(data) => props.args.search({ data, invalidatedPath: path })}>
+    <form className="max-w-2xl mx-auto px-2 sm:px-0" action={(data) => props.args.search({ data, invalidatedPath: path })}>
       <div className="py-4">
         <Label htmlFor="description">Description</Label>
         <Input

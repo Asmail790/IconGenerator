@@ -44,11 +44,11 @@ export default function AD() {
   ].map((fileName) => "/static/" + fileName);
 
   return (
-    <div className=" p-6 w-full flex flex-col gap-8">
-      <h1 className="text-3xl">
+    <div className=" p-4 sm:p-6 w-full flex flex-col gap-6 sm:gap-8">
+      <h1 className="text-2xl sm:text-3xl">
         Generate fast and efficient icons for your projects.
       </h1>
-      <p>
+      <p className="text-sm sm:text-base">
         Save time by generating icons for your businesses website, applications,
         or brand using our AI digital icon generator.
       </p>
@@ -67,10 +67,10 @@ export default function AD() {
         {signButton}
       </div>
 
-      <div className="w-full flex flex-row flex-wrap gap-8 m-2">
+      <div className="w-full flex flex-row flex-wrap gap-4 sm:gap-8 m-2">
         {images.map((url, i) => (
           <Image
-            className="w-16 md:w-32 aspect-square"
+            className="w-16 sm:w-20 md:w-32 aspect-square"
             key={i}
             src={url}
             height={128}

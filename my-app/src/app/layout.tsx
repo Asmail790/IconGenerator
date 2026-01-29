@@ -29,7 +29,7 @@ export default function RootLayout({
         <MantineProvider>
           <Providers>
             <Header deleteUser={deleteUser} />
-            <div className="xl:container flex flex-row justify-center p-4">
+            <div className="xl:container flex flex-row justify-center p-2 sm:p-4">
               <div className="w-full">{children}</div>
             </div>
           </Providers>
